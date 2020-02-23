@@ -1,0 +1,13 @@
+target
+tags
+.DS_Store
+*.rs.bk
+.idea
+.vscode
+
+#*
+.#*
+*#
+*~
+.project
+.settings
