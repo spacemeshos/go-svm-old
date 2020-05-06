@@ -1,4 +1,6 @@
-target
+svm-dep/target
+svm/_obj
+
 tags
 .DS_Store
 *.rs.bk

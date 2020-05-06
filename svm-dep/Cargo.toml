@@ -1,0 +1,11 @@
+[package]
+name = "svm"
+version = "0.1.0"
+authors = ["Moshe Shababo <dicentralized@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+svm-runtime-c-api = { git = "https://github.com/spacemeshos/svm" }
