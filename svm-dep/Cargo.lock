@@ -95,9 +95,9 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "blake3"
-version = "0.2.3"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "667d945f23cefed0b5f973af35c4bc3319caa6776fbda270e4897d8504afa8e4"
+checksum = "68df31bdf2bbb567e5adf8f21ac125dc0e897b1381e7b841f181521f06fc3134"
 dependencies = [
  "arrayref",
  "arrayvec",
@@ -133,9 +133,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.52"
+version = "1.0.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3d87b23d6a92cd03af510a5ade527033f6aa6fa92161e2d5863a907d4c5e31d"
+checksum = "404b1fe4f65288577753b17e3b36a04596ee784493ec249bf81c7f2d2acd751c"
 dependencies = [
  "jobserver",
 ]
@@ -168,9 +168,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "2.33.0"
+version = "2.33.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5067f5bb2d80ef5d68b4c87db81601f0b75bca627bc2ef76b141d7b846a3c6d9"
+checksum = "bdfa80d47f954d53a35a64987ca1422f495b8d6483c0fe9f7117b36c2a792129"
 dependencies = [
  "ansi_term",
  "atty",
@@ -192,9 +192,9 @@ dependencies = [
 
 [[package]]
 name = "cmake"
-version = "0.1.42"
+version = "0.1.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81fb25b677f8bf1eb325017cb6bb8452f87969db0fedb4f757b297bee78a7c62"
+checksum = "0e56268c17a6248366d66d4a47a3381369d068cce8409bb1716ed77ea32163bb"
 dependencies = [
  "cc",
 ]
@@ -329,9 +329,9 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
 name = "hermit-abi"
-version = "0.1.12"
+version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61565ff7aaace3525556587bd2dc31d4a07071957be715e63ce7b1eccf51a8f4"
+checksum = "91780f809e750b0a89f5544be56617ff6b1227ee485bcb06ebe10cdf89bd3b71"
 dependencies = [
  "libc",
 ]
@@ -390,9 +390,9 @@ checksum = "b294d6fa9ee409a054354afc4352b0b9ef7ca222c69b8812cbea9e7d2bf3783f"
 
 [[package]]
 name = "libc"
-version = "0.2.69"
+version = "0.2.70"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99e85c08494b21a9054e7fe1374a732aeadaff3980b6990b94bfd3a70f690005"
+checksum = "3baa92041a6fec78c687fa0cc2b3fae8884f743d672cf551bed1d6dac6988d0f"
 
 [[package]]
 name = "libloading"
@@ -433,12 +433,6 @@ checksum = "14b6052be84e6b71ab17edffc2eeabf5c2c3ae1fdb464aae35ac50c67a44e1f7"
 dependencies = [
  "cfg-if",
 ]
-
-[[package]]
-name = "maybe-uninit"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
 
 [[package]]
 name = "memchr"
@@ -524,7 +518,7 @@ dependencies = [
  "cloudabi",
  "libc",
  "redox_syscall",
- "smallvec 1.4.0",
+ "smallvec",
  "winapi",
 ]
 
@@ -536,15 +530,15 @@ checksum = "19b17cddbe7ec3f8bc800887bab5e717348c95ea2ca0b1bf0837fb964dc67099"
 
 [[package]]
 name = "ppv-lite86"
-version = "0.2.6"
+version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74490b50b9fbe561ac330df47c08f3f33073d2d00c150f719147d7c54522fa1b"
+checksum = "237a5ed80e274dbc66f86bd59c1e25edc039660be53194b5fe0a482e0f2612ea"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.12"
+version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8872cf6f48eee44265156c111456a700ab3483686b3f96df4cf5481c89157319"
+checksum = "53f5ffe53a6b28e37c9c1ce74893477864d64f74778a93a4beb43c8fa167f639"
 dependencies = [
  "unicode-xid",
 ]
@@ -557,9 +551,9 @@ checksum = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0"
 
 [[package]]
 name = "quote"
-version = "1.0.4"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c1f4b0efa5fc5e8ceb705136bfee52cfdb6a4e3509f770b478cd6ed434232a7"
+checksum = "54a21852a652ad6f610c9510194f398ff6f8692e334fd1145fed931f7fbe44ea"
 dependencies = [
  "proc-macro2",
 ]
@@ -692,9 +686,9 @@ checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "serde"
-version = "1.0.106"
+version = "1.0.110"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36df6ac6412072f67cf767ebbde4133a5b2e88e76dc6187fa7104cd16f783399"
+checksum = "99e7b308464d16b56eba9964e4972a3eee817760ab60d88c3f86e1fecb08204c"
 dependencies = [
  "serde_derive",
 ]
@@ -720,9 +714,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.106"
+version = "1.0.110"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e549e3abf4fb8621bd1609f11dfc9f5e50320802273b12f3811a67e6716ea6c"
+checksum = "818fbf6bfa9a42d3bfcaca148547aa00c7b915bec71d1757aa2d44ca68771984"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -731,9 +725,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.52"
+version = "1.0.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7894c8ed05b7a3a279aeb79025fdec1d3158080b75b98a08faf2806bb799edd"
+checksum = "993948e75b189211a9b31a7528f950c6adc21f9720b6438ff80a7fa2f864cea2"
 dependencies = [
  "itoa",
  "ryu",
@@ -745,15 +739,6 @@ name = "shlex"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fdf1b9db47230893d76faad238fd6097fd6d6a9245cd7a4d90dbd639536bbd2"
-
-[[package]]
-name = "smallvec"
-version = "0.6.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7b0758c52e15a8b5e3691eae6cc559f08eee9406e548a4477ba4e67770a82b6"
-dependencies = [
- "maybe-uninit",
-]
 
 [[package]]
 name = "smallvec"
@@ -789,7 +774,7 @@ dependencies = [
 [[package]]
 name = "svm-abi"
 version = "0.1.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "byteorder",
  "hex",
@@ -799,7 +784,7 @@ dependencies = [
 [[package]]
 name = "svm-app"
 version = "0.0.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "bit-vec",
  "byteorder",
@@ -807,12 +792,13 @@ dependencies = [
  "log",
  "svm-common",
  "svm-kv",
+ "svm-storage2",
 ]
 
 [[package]]
 name = "svm-common"
 version = "0.0.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "byteorder",
  "tiny-keccak",
@@ -821,7 +807,7 @@ dependencies = [
 [[package]]
 name = "svm-compiler"
 version = "0.0.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "svm-common",
  "svm-storage",
@@ -835,7 +821,7 @@ dependencies = [
 [[package]]
 name = "svm-gas"
 version = "0.0.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "log",
  "parity-wasm",
@@ -844,7 +830,7 @@ dependencies = [
 [[package]]
 name = "svm-kv"
 version = "0.0.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "log",
  "rocksdb",
@@ -854,7 +840,7 @@ dependencies = [
 [[package]]
 name = "svm-runtime"
 version = "0.0.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "byteorder",
  "lazy_static",
@@ -865,6 +851,7 @@ dependencies = [
  "svm-gas",
  "svm-kv",
  "svm-storage",
+ "svm-storage2",
  "wabt",
  "wasmer-middleware-common",
  "wasmer-runtime",
@@ -874,7 +861,7 @@ dependencies = [
 [[package]]
 name = "svm-runtime-c-api"
 version = "0.0.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "byteorder",
  "cbindgen",
@@ -886,6 +873,7 @@ dependencies = [
  "svm-kv",
  "svm-runtime",
  "svm-storage",
+ "svm-storage2",
  "wasmer-runtime",
  "wasmer-runtime-c-api",
  "wasmer-runtime-core",
@@ -895,7 +883,7 @@ dependencies = [
 [[package]]
 name = "svm-storage"
 version = "0.0.0"
-source = "git+https://github.com/spacemeshos/svm#6a1567e14aa9c53d0f7673c65671417bb37e6c08"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
 dependencies = [
  "cfg-if",
  "lazy_static",
@@ -906,10 +894,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "svm-storage2"
+version = "0.0.0"
+source = "git+https://github.com/spacemeshos/svm#1424617fde68a27effbf4c41bc407b219174b9ce"
+dependencies = [
+ "svm-common",
+ "svm-kv",
+]
+
+[[package]]
 name = "syn"
-version = "1.0.18"
+version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "410a7488c0a728c7ceb4ad59b9567eb4053d02e8cc7f5c0e0eeeb39518369213"
+checksum = "1425de3c33b0941002740a420b1a906a350b88d08b82b2c8a01035a3f9447bac"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -918,9 +915,9 @@ dependencies = [
 
 [[package]]
 name = "target-lexicon"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f4c118a7a38378f305a9e111fcb2f7f838c0be324bfb31a77ea04f7f6e684b4"
+checksum = "ab0e7238dcc7b40a7be719a25365910f6807bd864f4cce6b2e6b873658e2b19d"
 
 [[package]]
 name = "tempfile"
@@ -1047,17 +1044,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
 
 [[package]]
+name = "wasmer"
+version = "0.17.0"
+source = "git+https://github.com/spacemeshos/wasmer?branch=develop#0575a7ed3f8742c3842afbc455072d957af7f6ce"
+dependencies = [
+ "serde",
+ "wasmer-runtime-core",
+ "wasmer-singlepass-backend",
+]
+
+[[package]]
 name = "wasmer-middleware-common"
-version = "0.16.2"
-source = "git+https://github.com/spacemeshos/wasmer?branch=develop#704c34283f66aff8a07a58d30462d7401e39843a"
+version = "0.17.0"
+source = "git+https://github.com/spacemeshos/wasmer?branch=develop#0575a7ed3f8742c3842afbc455072d957af7f6ce"
 dependencies = [
  "wasmer-runtime-core",
 ]
 
 [[package]]
 name = "wasmer-runtime"
-version = "0.16.2"
-source = "git+https://github.com/spacemeshos/wasmer?branch=develop#704c34283f66aff8a07a58d30462d7401e39843a"
+version = "0.17.0"
+source = "git+https://github.com/spacemeshos/wasmer?branch=develop#0575a7ed3f8742c3842afbc455072d957af7f6ce"
 dependencies = [
  "lazy_static",
  "memmap",
@@ -1069,19 +1076,19 @@ dependencies = [
 
 [[package]]
 name = "wasmer-runtime-c-api"
-version = "0.16.2"
-source = "git+https://github.com/spacemeshos/wasmer?branch=develop#704c34283f66aff8a07a58d30462d7401e39843a"
+version = "0.17.0"
+source = "git+https://github.com/spacemeshos/wasmer?branch=develop#0575a7ed3f8742c3842afbc455072d957af7f6ce"
 dependencies = [
  "cbindgen",
  "libc",
- "wasmer-runtime",
+ "wasmer",
  "wasmer-runtime-core",
 ]
 
 [[package]]
 name = "wasmer-runtime-core"
-version = "0.16.2"
-source = "git+https://github.com/spacemeshos/wasmer?branch=develop#704c34283f66aff8a07a58d30462d7401e39843a"
+version = "0.17.0"
+source = "git+https://github.com/spacemeshos/wasmer?branch=develop#0575a7ed3f8742c3842afbc455072d957af7f6ce"
 dependencies = [
  "bincode",
  "blake3",
@@ -1100,7 +1107,7 @@ dependencies = [
  "serde-bench",
  "serde_bytes",
  "serde_derive",
- "smallvec 0.6.13",
+ "smallvec",
  "target-lexicon",
  "wasmparser 0.51.4",
  "winapi",
@@ -1108,8 +1115,8 @@ dependencies = [
 
 [[package]]
 name = "wasmer-singlepass-backend"
-version = "0.16.2"
-source = "git+https://github.com/spacemeshos/wasmer?branch=develop#704c34283f66aff8a07a58d30462d7401e39843a"
+version = "0.17.0"
+source = "git+https://github.com/spacemeshos/wasmer?branch=develop#0575a7ed3f8742c3842afbc455072d957af7f6ce"
 dependencies = [
  "bincode",
  "byteorder",
@@ -1120,7 +1127,7 @@ dependencies = [
  "nix",
  "serde",
  "serde_derive",
- "smallvec 0.6.13",
+ "smallvec",
  "wasmer-runtime-core",
 ]
 

@@ -1,5 +1,6 @@
 svm-dep/target
 svm/_obj
+examples/counter/counter
 
 tags
 .DS_Store
