@@ -45,32 +45,38 @@ func TestBytes(t *testing.T) {
 
 	// Iterate over the original slice bytes.
 	for i, b := range slice {
-		i := uintptr(i)
-
 		// Verify that both C array and the Go []byte slices i byte equal the original slice i byte.
-		req.Equal(b, *(*byte)(unsafe.Pointer(uintptr(cBytes.data) + i)))
-		req.Equal(b, *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(goSliceCloneHeader.Data)) + i)))
-		req.Equal(b, *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(goSliceAliasHeader.Data)) + i)))
+		req.Equal(b, offsetByte(cBytes.data, i))
+		req.Equal(b, offsetByte(unsafe.Pointer(goSliceCloneHeader.Data), i))
+		req.Equal(b, offsetByte(unsafe.Pointer(goSliceAliasHeader.Data), i))
 
 		// Mutate the C array i byte.
 		newVal := uint8(0)
-		req.NotEqual(newVal, *(*byte)(unsafe.Pointer(uintptr(cBytes.data) + i)))
-		*(*byte)(unsafe.Pointer(uintptr(cBytes.data) + i)) = newVal
-		req.Equal(newVal, *(*byte)(unsafe.Pointer(uintptr(cBytes.data) + i)))
+		req.NotEqual(newVal, offsetByte(cBytes.data, i))
+		setOffsetByte(cBytes.data, i, newVal)
+		req.Equal(newVal, offsetByte(cBytes.data, i))
 
 		// Verify that the original slice i byte isn't affected.
-		req.NotEqual(newVal, *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(sliceHeader.Data)) + i)))
-		req.Equal(b, *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(sliceHeader.Data)) + i)))
+		req.NotEqual(newVal, offsetByte(unsafe.Pointer(sliceHeader.Data), +i))
+		req.Equal(b, offsetByte(unsafe.Pointer(sliceHeader.Data), i))
 
 		// Verify that the Go []byte slice clone i byte isn't affected.
-		req.NotEqual(newVal, *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(goSliceCloneHeader.Data)) + i)))
-		req.Equal(b, *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(goSliceCloneHeader.Data)) + i)))
+		req.NotEqual(newVal, offsetByte(unsafe.Pointer(goSliceCloneHeader.Data), i))
+		req.Equal(b, offsetByte(unsafe.Pointer(goSliceCloneHeader.Data), i))
 
 		// Verify that the Go []byte slice alias i byte is affected.
-		req.Equal(newVal, *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(goSliceAliasHeader.Data)) + i)))
-		req.NotEqual(b, *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(goSliceAliasHeader.Data)) + i)))
+		req.Equal(newVal, offsetByte(unsafe.Pointer(goSliceAliasHeader.Data), i))
+		req.NotEqual(b, offsetByte(unsafe.Pointer(goSliceAliasHeader.Data), i))
 	}
 
 	// Free the C array which was allocated on the C heap.
 	cBytes.Free()
+}
+
+func offsetByte(p unsafe.Pointer, offset int) byte {
+	return *(*byte)(unsafe.Pointer(uintptr(p) + uintptr(offset)))
+}
+
+func setOffsetByte(p unsafe.Pointer, offset int, val byte) {
+	*(*byte)(unsafe.Pointer(uintptr(p) + uintptr(offset))) = val
 }

@@ -29,10 +29,10 @@ type ImportFunction struct {
 	namespace string
 
 	// The function implementation signature as a WebAssembly signature.
-	wasmInputs ValueTypes
+	args ValueTypes
 
 	// The function implementation signature as a WebAssembly signature.
-	wasmOutputs ValueTypes
+	returns ValueTypes
 }
 
 type ImportsBuilder struct {
@@ -57,7 +57,7 @@ func (ib ImportsBuilder) Namespace(namespace string) ImportsBuilder {
 }
 
 func (ib ImportsBuilder) AppendFunction(name string, implementation interface{}, cgoPointer unsafe.Pointer) (ImportsBuilder, error) {
-	wasmInputs, wasmOutputs, err := validateImport(name, implementation)
+	args, returns, err := validateImport(name, implementation)
 	if err != nil {
 		return ImportsBuilder{}, err
 	}
@@ -67,8 +67,8 @@ func (ib ImportsBuilder) AppendFunction(name string, implementation interface{},
 		implementation,
 		cgoPointer,
 		namespace,
-		wasmInputs,
-		wasmOutputs,
+		args,
+		returns,
 	}
 
 	return ib, nil
@@ -87,8 +87,8 @@ func (ib ImportsBuilder) Build() (Imports, error) {
 			importFunction.namespace,
 			importName,
 			importFunction.cgoPointer,
-			importFunction.wasmInputs,
-			importFunction.wasmOutputs,
+			importFunction.args,
+			importFunction.returns,
 		); err != nil {
 			return Imports{}, fmt.Errorf("failed to build import `%v`: %v", importName, err)
 		}
@@ -97,7 +97,7 @@ func (ib ImportsBuilder) Build() (Imports, error) {
 	return imports, nil
 }
 
-func validateImport(name string, implementation interface{}) (wasmInputs ValueTypes, wasmOutputs ValueTypes, err error) {
+func validateImport(name string, implementation interface{}) (args ValueTypes, returns ValueTypes, err error) {
 	var importType = reflect.TypeOf(implementation)
 
 	if importType.Kind() != reflect.Func {
@@ -120,17 +120,17 @@ func validateImport(name string, implementation interface{}) (wasmInputs ValueTy
 	inputArity--
 
 	var outputArity = importType.NumOut()
-	wasmInputs = make(ValueTypes, inputArity)
-	wasmOutputs = make(ValueTypes, outputArity)
+	args = make(ValueTypes, inputArity)
+	returns = make(ValueTypes, outputArity)
 
 	for i := 0; i < inputArity; i++ {
 		var importInput = importType.In(i + 1)
 
 		switch importInput.Kind() {
 		case reflect.Int32:
-			wasmInputs[i] = TypeI32
+			args[i] = TypeI32
 		case reflect.Int64:
-			wasmInputs[i] = TypeI64
+			args[i] = TypeI64
 		default:
 			err = fmt.Errorf("invalid input type for the `%s` imported function; given `%s`; only accept `int32` and `int64`", name, importInput.Kind())
 			return
@@ -143,9 +143,9 @@ func validateImport(name string, implementation interface{}) (wasmInputs ValueTy
 	} else if outputArity == 1 {
 		switch importType.Out(0).Kind() {
 		case reflect.Int32:
-			wasmOutputs[0] = TypeI32
+			returns[0] = TypeI32
 		case reflect.Int64:
-			wasmOutputs[0] = TypeI64
+			returns[0] = TypeI64
 		default:
 			err = fmt.Errorf("invalid output type for the `%s` imported function; given `%s`; only accept `int32` and `int64`", name, importType.Out(0).Kind())
 			return

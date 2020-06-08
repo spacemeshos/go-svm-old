@@ -20,8 +20,12 @@ func TestValueTypes_Encode(t *testing.T) {
 	req.Equal(uint8(TypeI64), data[1])
 	req.Equal(uint8(TypeI32), data[2])
 	req.Equal(uint8(TypeI64), data[3])
+}
 
-	data = ValueTypes{}.Encode()
+func TestValueTypes_Encode_Empty(t *testing.T) {
+	req := require.New(t)
+
+	data := ValueTypes{}.Encode()
 	req.Equal(0, len(data))
 	req.Equal(0, cap(data))
 
@@ -30,7 +34,7 @@ func TestValueTypes_Encode(t *testing.T) {
 	req.Equal(0, cap(data))
 }
 
-func TestValues_Encode_Decode(t *testing.T) {
+func TestValues_Decode_Empty(t *testing.T) {
 	req := require.New(t)
 	v := Values{}
 
@@ -39,24 +43,39 @@ func TestValues_Encode_Decode(t *testing.T) {
 
 	err = v.Decode([]byte{})
 	req.EqualError(err, "invalid input: empty data")
+}
 
-	vBase := Values(nil)
-	err = v.Decode(vBase.Encode())
+func TestValues_Encode_Decode_Empty(t *testing.T) {
+	req := require.New(t)
+	v := Values{}
+
+	err := v.Decode(Values(nil).Encode())
+	req.NoError(err)
 	req.Equal(Values{}, v)
 
-	vBase = Values{}
-	err = v.Decode(vBase.Encode())
-	req.Equal(vBase, v)
+	err = v.Decode(Values{}.Encode())
+	req.NoError(err)
+	req.Equal(Values{}, v)
+}
 
-	vBase = Values{I32(10), I64(20)}
-	err = v.Decode(vBase.Encode())
+func TestValues_Encode_Decode(t *testing.T) {
+	req := require.New(t)
+	v := Values{}
+
+	vBase := Values{I32(10), I64(20)}
+	err := v.Decode(vBase.Encode())
 	req.NoError(err)
 	req.Equal(vBase, v)
+}
+
+func TestValues_Decode_Errors(t *testing.T) {
+	req := require.New(t)
+	v := Values{}
 
 	v = Values{}
-	vBase = Values{I32(10), I64(20)}
+	vBase := Values{I32(10), I64(20)}
 	vBaseData := vBase.Encode()
-	err = v.Decode(append(vBaseData, byte(0)))
+	err := v.Decode(append(vBaseData, byte(0)))
 	req.EqualError(err, "too many bytes; num expected: 15, num given: 16")
 	req.Equal(Values{}, v)
 

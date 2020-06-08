@@ -10,7 +10,7 @@ import (
 )
 
 // ValueType represents the `Value` type.
-type ValueType int
+type ValueType uint8
 
 const (
 	// TypeI32 represents the SVM `i32` type.

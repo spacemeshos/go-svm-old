@@ -3,6 +3,7 @@ name = "svm"
 version = "0.1.0"
 authors = ["Moshe Shababo <dicentralized@gmail.com>"]
 edition = "2018"
+publish = false
 
 [lib]
 crate-type = ["cdylib"]
