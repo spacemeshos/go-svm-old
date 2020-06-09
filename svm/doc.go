@@ -1,3 +1,6 @@
+// Copyright (c) 2019-present Wasmer, Inc. and its affiliates.
+// Copyright (c) 2018-present Spacemesh
+
 // [SVM] is a smart contracts framework written in [Rust].
 // Its runtime exposes a C API through [the `svm-runtime-c-api` crate][svm-runtime-c-api],
 // which is also written in Rust but compiles to C-compatible shared
