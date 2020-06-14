@@ -152,17 +152,13 @@ void svm_byte_array_destroy(svm_byte_array bytes);
  * let mut imports = testing::imports_alloc(0);
  *
  * // create runtime
- * let mut kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create(&mut kv) };
- * assert!(res.is_ok());
- *
  * let mut raw_kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create2(&mut raw_kv) };
+ * let res = unsafe { svm_memory_kv_create(&mut raw_kv) };
  * assert!(res.is_ok());
  *
  * let mut runtime = std::ptr::null_mut();
  * let mut error = svm_byte_array::default();
- * let res = unsafe { svm_memory_runtime_create(&mut runtime, kv, raw_kv, host, imports, &mut error) };
+ * let res = unsafe { svm_memory_runtime_create(&mut runtime, raw_kv, host, imports, &mut error) };
  * assert!(res.is_ok());
  *
  * // deploy template
@@ -205,8 +201,8 @@ svm_result_t svm_deploy_template(svm_byte_array *receipt,
 svm_result_t svm_encode_app_template(svm_byte_array *app_template,
                                      uint32_t version,
                                      svm_byte_array name,
-                                     uint16_t page_count,
                                      svm_byte_array code,
+                                     svm_byte_array data,
                                      svm_byte_array *error);
 
 /**
@@ -304,18 +300,15 @@ svm_result_t svm_estimate_spawn_app(uint64_t *estimation,
  * let mut imports = testing::imports_alloc(0);
  *
  * // create runtime
- * let mut kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create(&mut kv) };
- * assert!(res.is_ok());
  *
  * let mut raw_kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create2(&mut raw_kv) };
+ * let res = unsafe { svm_memory_kv_create(&mut raw_kv) };
  * assert!(res.is_ok());
  *
  * let mut runtime = std::ptr::null_mut();
  * let mut error = svm_byte_array::default();
  *
- * let res = unsafe { svm_memory_runtime_create(&mut runtime, kv, raw_kv, host, imports, &mut error) };
+ * let res = unsafe { svm_memory_runtime_create(&mut runtime, raw_kv, host, imports, &mut error) };
  * assert!(res.is_ok());
  *
  * let mut exec_receipt = svm_byte_array::default();
@@ -498,16 +491,40 @@ void svm_imports_destroy(const void *imports);
 void *svm_instance_context_host_get(void *ctx);
 
 /**
- * Creates a new in-memory `MemKVStore`.
+ * Creates a new in-memory key-value client.
  * Returns a raw pointer to allocated kv-store via input parameter `raw_kv`.
+ *
+ * # Example
+ *
+ * ```rust
+ * use svm_runtime_c_api::*;
+ *
+ * let mut raw_kv = std::ptr::null_mut();
+ * let res = unsafe { svm_memory_kv_create(&mut raw_kv) };
+ * assert!(res.is_ok());
+ * ```
+ *
  */
 svm_result_t svm_memory_kv_create(void **kv);
 
 /**
- * Creates a new in-memory key-value client.
- * Returns a raw pointer to allocated kv-store via input parameter `raw_kv`.
+ * Frees an in-memory key-value.
+ *
+ * # Example
+ *
+ * ```rust
+ * use svm_runtime_c_api::*;
+ *
+ * let mut raw_kv = std::ptr::null_mut();
+ * let res = unsafe { svm_memory_kv_create(&mut raw_kv) };
+ * assert!(res.is_ok());
+ *
+ * let res = unsafe { svm_memory_kv_destroy(raw_kv) };
+ * assert!(res.is_ok());
+ * ```
+ *
  */
-svm_result_t svm_memory_kv_create2(void **kv);
+svm_result_t svm_memory_kv_destroy(void *kv);
 
 /**
  * Creates a new SVM Runtime instance baced-by an in-memory KV.
@@ -522,22 +539,17 @@ svm_result_t svm_memory_kv_create2(void **kv);
  * let host = std::ptr::null_mut();
  * let mut imports = testing::imports_alloc(0);
  *
- * let mut kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create(&mut kv) };
- * assert!(res.is_ok());
- *
  * let mut raw_kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create2(&mut raw_kv) };
+ * let res = unsafe { svm_memory_kv_create(&mut raw_kv) };
  * assert!(res.is_ok());
  *
  * let mut error = svm_byte_array::default();
- * let res = unsafe { svm_memory_runtime_create(&mut runtime, kv, raw_kv, host, imports, &mut error) };
+ * let res = unsafe { svm_memory_runtime_create(&mut runtime, raw_kv, host, imports, &mut error) };
  * assert!(res.is_ok());
  * ```
  *
  */
 svm_result_t svm_memory_runtime_create(void **runtime,
-                                       void *kv,
                                        void *raw_kv,
                                        void *host,
                                        const void *imports,
@@ -584,17 +596,14 @@ svm_result_t svm_runtime_create(void **runtime,
  * let mut imports = testing::imports_alloc(0);
  *
  * // create runtime
- * let mut kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create(&mut kv) };
- * assert!(res.is_ok());
  *
  * let mut raw_kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create2(&mut raw_kv) };
+ * let res = unsafe { svm_memory_kv_create(&mut raw_kv) };
  * assert!(res.is_ok());
  *
  * let mut runtime = std::ptr::null_mut();
  * let mut error = svm_byte_array::default();
- * let res = unsafe { svm_memory_runtime_create(&mut runtime, kv, raw_kv, host, imports, &mut error) };
+ * let res = unsafe { svm_memory_runtime_create(&mut runtime, raw_kv, host, imports, &mut error) };
  * assert!(res.is_ok());
  *
  * // destroy runtime
@@ -619,18 +628,14 @@ void svm_runtime_destroy(void *runtime);
  * let mut imports = testing::imports_alloc(0);
  *
  * // create runtime
- * let mut kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create(&mut kv) };
- * assert!(res.is_ok());
- *
  * let mut raw_kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create2(&mut raw_kv) };
+ * let res = unsafe { svm_memory_kv_create(&mut raw_kv) };
  * assert!(res.is_ok());
  *
  * let mut runtime = std::ptr::null_mut();
  * let mut error = svm_byte_array::default();
  *
- * let res = unsafe { svm_memory_runtime_create(&mut runtime, kv, raw_kv, host, imports, &mut error) };
+ * let res = unsafe { svm_memory_runtime_create(&mut runtime, raw_kv, host, imports, &mut error) };
  * assert!(res.is_ok());
  *
  * let mut app_receipt = svm_byte_array::default();
@@ -729,9 +734,6 @@ svm_result_t svm_validate_template(const void *runtime,
  * let mut imports = testing::imports_alloc(0);
  *
  * // create runtime
- * let mut kv = std::ptr::null_mut();
- * let res = unsafe { svm_memory_kv_create(&mut kv) };
- * assert!(res.is_ok());
  *
  * let mut raw_kv = std::ptr::null_mut();
  * let res = unsafe { svm_memory_kv_create(&mut raw_kv) };
@@ -740,7 +742,7 @@ svm_result_t svm_validate_template(const void *runtime,
  * let mut runtime = std::ptr::null_mut();
  * let mut error = svm_byte_array::default();
  *
- * let res = unsafe { svm_memory_runtime_create(&mut runtime, kv, raw_kv, host, imports, &mut error) };
+ * let res = unsafe { svm_memory_runtime_create(&mut runtime, raw_kv, host, imports, &mut error) };
  * assert!(res.is_ok());
  *
  * let mut app_addr = svm_byte_array::default();

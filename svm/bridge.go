@@ -60,14 +60,13 @@ func cSvmImportFuncBuild(
 	return nil
 }
 
-func cSvmMemoryRuntimeCreate(runtime *unsafe.Pointer, kv, raw_kv, host, imports unsafe.Pointer) error {
+func cSvmMemoryRuntimeCreate(runtime *unsafe.Pointer, kv, host, imports unsafe.Pointer) error {
 	err := cSvmByteArray{}
 	defer err.SvmFree()
 
 	if res := C.svm_memory_runtime_create(
 		runtime,
 		kv,
-		raw_kv,
 		host,
 		imports,
 		&err,
@@ -82,20 +81,18 @@ func cSvmMemoryKVCreate(p *unsafe.Pointer) cSvmResultT {
 	return (cSvmResultT)(C.svm_memory_kv_create(p))
 }
 
-func cSvmMemoryRawKVCreate(p *unsafe.Pointer) cSvmResultT {
-	return (cSvmResultT)(C.svm_memory_kv_create2(p))
-}
-
-func cSvmEncodeAppTemplate(version int, name string, pageCount int, code []byte) ([]byte, error) {
+func cSvmEncodeAppTemplate(version int, name string, code []byte, dataLayout DataLayout) ([]byte, error) {
 	appTemplate := cSvmByteArray{}
 	cName := bytesCloneToSvmByteArray([]byte(name))
 	cCode := bytesCloneToSvmByteArray(code)
+	cDataLayout := bytesCloneToSvmByteArray(dataLayout.Encode())
 	err := cSvmByteArray{}
 
 	defer func() {
 		appTemplate.SvmFree()
 		cName.Free()
 		cCode.Free()
+		cDataLayout.Free()
 		err.SvmFree()
 	}()
 
@@ -103,14 +100,35 @@ func cSvmEncodeAppTemplate(version int, name string, pageCount int, code []byte)
 		&appTemplate,
 		C.uint(version),
 		cName,
-		C.ushort(pageCount),
 		cCode,
+		cDataLayout,
 		&err,
 	); res != cSvmSuccess {
 		return nil, err.svmError()
 	}
 
 	return svmByteArrayCloneToBytes(appTemplate), nil
+}
+
+func cSvmValidateTemplate(runtime Runtime, appTemplate []byte) error {
+	cRuntime := runtime.p
+	cAppTemplate := bytesCloneToSvmByteArray(appTemplate)
+	cErr := cSvmByteArray{}
+
+	defer func() {
+		cAppTemplate.Free()
+		cErr.SvmFree()
+	}()
+
+	if res := C.svm_validate_template(
+		cRuntime,
+		cAppTemplate,
+		&cErr,
+	); res != cSvmSuccess {
+		return cErr.svmError()
+	}
+
+	return nil
 }
 
 func cSvmDeployTemplate(runtime Runtime, appTemplate []byte, author Address, hostCtx []byte, gasMetering bool, gasLimit uint64) ([]byte, error) {
@@ -321,6 +339,27 @@ func cSvmEncodeSpawnApp(version int, templateAddr Address, ctorIndex uint16, cto
 	return svmByteArrayCloneToBytes(spawnApp), nil
 }
 
+func cSvmValidateApp(runtime Runtime, app []byte) error {
+	cRuntime := runtime.p
+	cApp := bytesCloneToSvmByteArray(app)
+	cErr := cSvmByteArray{}
+
+	defer func() {
+		cApp.Free()
+		cErr.SvmFree()
+	}()
+
+	if res := C.svm_validate_app(
+		cRuntime,
+		cApp,
+		&cErr,
+	); res != cSvmSuccess {
+		return cErr.svmError()
+	}
+
+	return nil
+}
+
 func cSvmEncodeAppTx(
 	version int,
 	AppAddr Address,
@@ -502,6 +541,10 @@ func cSvmRuntimeDestroy(runtime Runtime) {
 
 func cSvmImportsDestroy(imports Imports) {
 	C.svm_imports_destroy(imports.p)
+}
+
+func cSvmMemKVDestroy(kv MemKVStore) {
+	C.svm_memory_kv_destroy(kv.p)
 }
 
 func cFree(p unsafe.Pointer) {
