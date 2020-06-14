@@ -12,8 +12,8 @@ import (
 
 // #include <stdlib.h>
 //
-// extern void inc(void *ctx, int32_t value);
-// extern int32_t get(void *ctx);
+// extern void inc(void *ctx, int value);
+// extern int get(void *ctx);
 import "C"
 
 // Define `inc` and `get` Go implementation.

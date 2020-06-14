@@ -120,7 +120,7 @@ func cSvmDeployTemplate(runtime Runtime, appTemplate []byte, author Address, hos
 	cAuthor := bytesCloneToSvmByteArray(author[:])
 	cHostCtx := bytesCloneToSvmByteArray(hostCtx)
 	cGasMetering := C.bool(gasMetering)
-	cGasLimit := C.ulonglong(gasLimit)
+	cGasLimit := C.uint64_t(gasLimit)
 	cErr := cSvmByteArray{}
 
 	defer func() {
@@ -170,7 +170,7 @@ func cSvmTemplateReceiptAddr(receipt []byte) (Address, error) {
 }
 
 func cSvmTemplateReceiptGas(receipt []byte) (uint64, error) {
-	var cGasUsed C.ulonglong
+	var cGasUsed C.uint64_t
 	cReceipt := bytesCloneToSvmByteArray(receipt)
 	cErr := cSvmByteArray{}
 
@@ -198,7 +198,7 @@ func cSvmSpawnApp(runtime Runtime, spawnApp []byte, creator Address, hostCtx []b
 	cCreator := bytesCloneToSvmByteArray(creator[:])
 	cHostCtx := bytesCloneToSvmByteArray(hostCtx)
 	cGasMetering := C.bool(gasMetering)
-	cGasLimit := C.ulonglong(gasLimit)
+	cGasLimit := C.uint64_t(gasLimit)
 	cErr := cSvmByteArray{}
 
 	defer func() {
@@ -270,7 +270,7 @@ func cSvmAppReceiptAddr(receipt []byte) (Address, error) {
 }
 
 func cSvmAppReceiptGas(receipt []byte) (uint64, error) {
-	var cGasUsed C.ulonglong
+	var cGasUsed C.uint64_t
 	cReceipt := bytesCloneToSvmByteArray(receipt)
 	cErr := cSvmByteArray{}
 
@@ -391,7 +391,7 @@ func cSvmExecApp(runtime Runtime, appTx []byte, appState []byte, hostCtx []byte,
 	cAppState := bytesCloneToSvmByteArray(appState)
 	cHostCtx := bytesCloneToSvmByteArray(hostCtx)
 	cGasMetering := C.bool(gasMetering)
-	cGasLimit := C.ulonglong(gasLimit)
+	cGasLimit := C.uint64_t(gasLimit)
 	cErr := cSvmByteArray{}
 
 	defer func() {
@@ -468,7 +468,7 @@ func cSvmExecReceiptReturns(receipt []byte) (Values, error) {
 }
 
 func cSvmExecReceiptGas(receipt []byte) (uint64, error) {
-	var cGasUsed C.ulonglong
+	var cGasUsed C.uint64_t
 	cReceipt := bytesCloneToSvmByteArray(receipt)
 	cErr := cSvmByteArray{}
 
