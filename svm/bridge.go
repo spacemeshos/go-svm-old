@@ -83,6 +83,7 @@ func cSvmMemoryKVCreate(p *unsafe.Pointer) cSvmResultT {
 
 func cSvmEncodeAppTemplate(version int, name string, code []byte, dataLayout DataLayout) ([]byte, error) {
 	appTemplate := cSvmByteArray{}
+	cVersion := C.uint(version)
 	cName := bytesCloneToSvmByteArray([]byte(name))
 	cCode := bytesCloneToSvmByteArray(code)
 	cDataLayout := bytesCloneToSvmByteArray(dataLayout.Encode())
@@ -98,7 +99,7 @@ func cSvmEncodeAppTemplate(version int, name string, code []byte, dataLayout Dat
 
 	if res := C.svm_encode_app_template(
 		&appTemplate,
-		C.uint(version),
+		cVersion,
 		cName,
 		cCode,
 		cDataLayout,
