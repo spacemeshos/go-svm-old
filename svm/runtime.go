@@ -15,11 +15,10 @@ func (r Runtime) Free() {
 }
 
 type RuntimeBuilder struct {
-	imports     unsafe.Pointer
-	memoryKV    unsafe.Pointer
-	memoryRawKV unsafe.Pointer
-	diskKVPath  string
-	host        unsafe.Pointer
+	imports    unsafe.Pointer
+	memKV      unsafe.Pointer
+	diskKVPath string
+	host       unsafe.Pointer
 }
 
 func NewRuntimeBuilder() RuntimeBuilder {
@@ -31,13 +30,8 @@ func (rb RuntimeBuilder) WithImports(imports Imports) RuntimeBuilder {
 	return rb
 }
 
-func (rb RuntimeBuilder) WithMemoryKV(p unsafe.Pointer) RuntimeBuilder {
-	rb.memoryKV = p
-	return rb
-}
-
-func (rb RuntimeBuilder) WithMemoryRawKV(p unsafe.Pointer) RuntimeBuilder {
-	rb.memoryRawKV = p
+func (rb RuntimeBuilder) WithMemKVStore(kv MemKVStore) RuntimeBuilder {
+	rb.memKV = kv.p
 	return rb
 }
 
@@ -56,8 +50,7 @@ func (rb RuntimeBuilder) Build() (Runtime, error) {
 
 	if err := cSvmMemoryRuntimeCreate(
 		&p,
-		rb.memoryKV,
-		rb.memoryRawKV,
+		rb.memKV,
 		rb.host,
 		rb.imports,
 	); err != nil {

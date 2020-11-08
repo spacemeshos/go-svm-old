@@ -5,18 +5,19 @@ import (
 	"unsafe"
 )
 
-func NewMemoryKVStore() (unsafe.Pointer, error) {
-	var p unsafe.Pointer
-	if res := cSvmMemoryKVCreate(&p); res != cSvmSuccess {
-		return nil, fmt.Errorf("failed to create memory kv-store")
-	}
-	return p, nil
+type MemKVStore struct {
+	p unsafe.Pointer
 }
 
-func NewMemoryRawKVStore() (unsafe.Pointer, error) {
+func NewMemKVStore() (MemKVStore, error) {
 	var p unsafe.Pointer
-	if res := cSvmMemoryRawKVCreate(&p); res != cSvmSuccess {
-		return nil, fmt.Errorf("failed to create memory kv-store")
+	if res := cSvmMemoryKVCreate(&p); res != cSvmSuccess {
+		return MemKVStore{}, fmt.Errorf("failed to create memory kv-store")
 	}
-	return p, nil
+
+	return MemKVStore{p}, nil
+}
+
+func (kv MemKVStore) Free() {
+	cSvmMemKVDestroy(kv)
 }

@@ -1,6 +1,7 @@
 svm-dep/target
 svm/_obj
 examples/counter/counter
+cmd/fetch_artifacts/fetch_artifacts
 
 tags
 .DS_Store

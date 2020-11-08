@@ -1,7 +1,7 @@
 package svm
 
-func EncodeAppTemplate(version int, name string, pageCount int, code []byte) ([]byte, error) {
-	return cSvmEncodeAppTemplate(version, name, pageCount, code)
+func EncodeAppTemplate(version int, name string, code []byte, dataLayout DataLayout) ([]byte, error) {
+	return cSvmEncodeAppTemplate(version, name, code, dataLayout)
 }
 
 func EncodeSpawnApp(version int, templateAddr Address, ctorIndex uint16, ctorBuffer []byte, ctorArgs Values) ([]byte, error) {

@@ -61,18 +61,15 @@ func main() {
 	noError(err)
 	defer imports.Free()
 
-	kv, err := svm.NewMemoryKVStore()
+	kv, err := svm.NewMemKVStore()
 	noError(err)
-
-	rawKV, err := svm.NewMemoryRawKVStore()
-	noError(err)
+	defer kv.Free()
 
 	host := unsafe.Pointer(&host)
 
 	runtime, err := svm.NewRuntimeBuilder().
 		WithImports(imports).
-		WithMemoryKV(kv).
-		WithMemoryRawKV(rawKV).
+		WithMemKVStore(kv).
 		WithHost(host).
 		Build()
 	noError(err)
@@ -87,16 +84,16 @@ func main() {
 	// 2) Deploy Template.
 	// TODO: add on-the-fly wat2wasm translation
 	code, err := ioutil.ReadFile("counter_template.wasm")
+	dataLayout := svm.DataLayout{4}
 	noError(err)
 	name := "name"
-	pageCount := 1
 	author := svm.Address{}
 	deployTemplateResult, err := deployTemplate(
 		runtime,
 		code,
+		dataLayout,
 		version,
 		name,
-		pageCount,
 		author,
 		hostCtx,
 		gasMetering,
@@ -185,9 +182,9 @@ func main() {
 func deployTemplate(
 	runtime svm.Runtime,
 	code []byte,
+	dataLayout svm.DataLayout,
 	version int,
 	name string,
-	pageCount int,
 	author svm.Address,
 	hostCtx []byte,
 	gasMetering bool,
@@ -196,10 +193,14 @@ func deployTemplate(
 	appTemplate, err := svm.EncodeAppTemplate(
 		version,
 		name,
-		pageCount,
 		code,
+		dataLayout,
 	)
 	if err != nil {
+		return nil, err
+	}
+
+	if err = svm.ValidateTemplate(runtime, appTemplate); err != nil {
 		return nil, err
 	}
 
@@ -238,6 +239,10 @@ func spawnApp(
 		ctorArgs,
 	)
 	if err != nil {
+		return nil, err
+	}
+
+	if err = svm.ValidateApp(runtime, spawnApp); err != nil {
 		return nil, err
 	}
 
