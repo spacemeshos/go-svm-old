@@ -15,20 +15,20 @@ func TestAddress(t *testing.T) {
 		req.Equal(expectedOut, out)
 	}
 
-	testRange := AddressLen + 10
+	testRange := AddressSize + 10
 	b := make([]byte, testRange, testRange)
 	for i := 0; i < testRange; i++ {
 		b[i] = byte(i) // Assign some arbitrary value to the next additional byte we're testing.
 
-		if i > AddressLen {
+		if i > AddressSize {
 			testAddress(
-				bytesToAddress(b[:i]),
-				bytesToAddress(b[:AddressLen]),
+				BytesToAddress(b[:i]),
+				BytesToAddress(b[:AddressSize]),
 			)
 		} else {
 			testAddress(
-				bytesToAddress(b[:i]),
-				bytesToAddress(b[:i]),
+				BytesToAddress(b[:i]),
+				BytesToAddress(b[:i]),
 			)
 		}
 	}

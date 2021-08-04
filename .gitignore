@@ -1,8 +1,3 @@
-svm-dep/target
-svm/_obj
-examples/counter/counter
-cmd/fetch_artifacts/fetch_artifacts
-
 tags
 .DS_Store
 *.rs.bk
@@ -15,3 +10,12 @@ tags
 *~
 .project
 .settings
+
+svm/_obj
+
+examples/counter/counter
+examples/counter/wasm/counter/target
+
+cmd/fetch_artifacts/fetch_artifacts
+
+svm-dep/target

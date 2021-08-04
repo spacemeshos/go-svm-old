@@ -2,6 +2,7 @@ package svm
 
 import "C"
 import (
+	"reflect"
 	"unsafe"
 )
 
@@ -19,10 +20,24 @@ func (b GoBytes) CBytesClone() CBytes {
 	return CBytes{data: p, len: len(b)}
 }
 
+// CBytesAlias creates a new C array backed by the []byte slice, without copying the original data.
+//
+// ⚠️ UNSAFE.
+// Go garbage collector might interact with the []byte slice. Once it will be freed,
+// the behavior of any code using the C array is non-deterministic.
+func (b GoBytes) CBytesAlias() CBytes {
+	header := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	return CBytes{data: unsafe.Pointer(header.Data), len: len(b)}
+}
+
 // CBytes represents a C array allocated via the C allocator.
 type CBytes struct {
 	data unsafe.Pointer
 	len  int
+}
+
+func NewCBytes(data unsafe.Pointer, len int) CBytes {
+	return CBytes{data, len}
 }
 
 // GoBytesClone is using the built-in `GoBytes` cgo function to
@@ -35,8 +50,10 @@ func (s CBytes) GoBytesClone() []byte {
 	return C.GoBytes(s.data, C.int(s.len))
 }
 
-// GoBytesAlias create a new []byte slice backed by a C array, without copying the original data.
-// Go garbage collector will not interact with this data, and if it is freed via
+// GoBytesAlias create a new []byte slice backed by the C array, without copying the original data.
+//
+// ⚠️ UNSAFE.
+// Go garbage collector will not interact with this data. Once it is freed by
 // the C allocator, the behavior of any Go code using the slice is non-deterministic.
 func (s CBytes) GoBytesAlias() []byte {
 	// Arbitrary large-enough size for

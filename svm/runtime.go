@@ -7,7 +7,8 @@ import (
 )
 
 type Runtime struct {
-	p unsafe.Pointer
+	// _inner is a pointer to an SVM-managed heap allocation.
+	_inner unsafe.Pointer
 }
 
 func (r Runtime) Free() {
@@ -15,33 +16,27 @@ func (r Runtime) Free() {
 }
 
 type RuntimeBuilder struct {
-	imports    unsafe.Pointer
-	memKV      unsafe.Pointer
-	diskKVPath string
-	host       unsafe.Pointer
+	imports unsafe.Pointer
+	kv      unsafe.Pointer
+	host    unsafe.Pointer
 }
 
 func NewRuntimeBuilder() RuntimeBuilder {
 	return RuntimeBuilder{}
 }
 
-func (rb RuntimeBuilder) WithImports(imports Imports) RuntimeBuilder {
-	rb.imports = imports.p
+func (rb RuntimeBuilder) WithImports(imports *Imports) RuntimeBuilder {
+	rb.imports = imports._inner
 	return rb
 }
 
-func (rb RuntimeBuilder) WithMemKVStore(kv MemKVStore) RuntimeBuilder {
-	rb.memKV = kv.p
+func (rb RuntimeBuilder) WithStateKV_Mem(kv *StateKV_Mem) RuntimeBuilder {
+	rb.kv = kv._inner
 	return rb
 }
 
-func (rb RuntimeBuilder) WithDiskKV(path string) RuntimeBuilder {
-	rb.diskKVPath = path
-	return rb
-}
-
-func (rb RuntimeBuilder) WithHost(p unsafe.Pointer) RuntimeBuilder {
-	rb.host = p
+func (rb RuntimeBuilder) WithStateKV_FFI(kv *StateKV_FFI) RuntimeBuilder {
+	rb.kv = kv._inner
 	return rb
 }
 
@@ -50,16 +45,11 @@ func (rb RuntimeBuilder) Build() (Runtime, error) {
 
 	if err := cSvmMemoryRuntimeCreate(
 		&p,
-		rb.memKV,
-		rb.host,
+		rb.kv,
 		rb.imports,
 	); err != nil {
 		return Runtime{}, fmt.Errorf("failed to create runtime: %v", err)
 	}
 
 	return Runtime{p}, nil
-}
-
-func InstanceContextHostGet(ctx unsafe.Pointer) unsafe.Pointer {
-	return cSvmInstanceContextHostGet(ctx)
 }
