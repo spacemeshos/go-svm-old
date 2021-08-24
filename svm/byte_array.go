@@ -1,14 +1,28 @@
 package svm
 
 import "C"
+
+// #include "./svm.h"
+//
+import "C"
 import (
 	"fmt"
 	"unsafe"
 )
 
+type (
+	cSvmByteArray = C.svm_byte_array
+)
+
 func bytesCloneToSvmByteArray(b []byte) cSvmByteArray {
 	var ba cSvmByteArray
 	ba.FromBytesClone(b)
+	return ba
+}
+
+func bytesAliasToSvmByteArray(b []byte) cSvmByteArray {
+	var ba cSvmByteArray
+	ba.FromBytesAlias(b)
 	return ba
 }
 
@@ -22,6 +36,16 @@ func (ba *cSvmByteArray) FromBytesClone(b []byte) {
 	}
 
 	cBytes := GoBytes(b).CBytesClone()
+	ba.bytes = (*cUchar)(cBytes.data)
+	ba.length = (cUint)(cBytes.len)
+}
+
+func (ba *cSvmByteArray) FromBytesAlias(b []byte) {
+	if len(b) == 0 {
+		return
+	}
+
+	cBytes := GoBytes(b).CBytesAlias()
 	ba.bytes = (*cUchar)(cBytes.data)
 	ba.length = (cUint)(cBytes.len)
 }

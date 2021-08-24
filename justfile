@@ -69,6 +69,10 @@ example:
 	#!/usr/bin/env bash
 	set -euo pipefail
 
+	pushd examples/counter/wasm
+	./build.sh
+	popd
+
 	pushd examples/counter
 	go build && ./counter
 	popd

@@ -2,298 +2,207 @@ package main
 
 import (
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
+	"go-svm/codec"
 	"go-svm/svm"
 	"io/ioutil"
-	"unsafe"
 )
 
-// Declare `inc` and `get` C function signatures in the cgo preamble.
-// Doing so is required for SVM to be able to invoke their Go implementation.
+const (
+	templateFilename = "./wasm/counter.wasm"
+	initialValue     = 10
+)
 
-// #include <stdlib.h>
-//
-// extern void inc(void *ctx, int value);
-// extern int get(void *ctx);
-import "C"
-
-// Define `inc` and `get` Go implementation.
-// The first argument is the runtime context, and must be included by all import functions.
-// Notice the `//export` comment which is the way cgo uses to map Go code to C code.
-
-//export inc
-func inc(ctx unsafe.Pointer, value int32) {
-	// SVM import function can access a closure variable,
-	closure.value += value
-
-	// or the runtime's provided host object pointer.
-	host := (*counter)(svm.InstanceContextHostGet(ctx))
-	host.value += value
-}
-
-//export get
-func get(ctx unsafe.Pointer) int32 {
-	host := (*counter)(svm.InstanceContextHostGet(ctx))
-
-	// Host and closure variable should be synced.
-	if host.value != closure.value {
-		panic("Mayday")
-	}
-
-	return host.value
-}
-
-type counter struct {
-	value int32
-}
-
-var closure counter
-
-var host counter
+var counter int32 = initialValue
 
 func main() {
-	// 1) Initialize runtime.
-	ib := svm.NewImportsBuilder()
-	ib, err := ib.AppendFunction("inc", inc, C.inc)
-	noError(err)
-	ib, err = ib.AppendFunction("get", get, C.get)
-	noError(err)
-	imports, err := ib.Build()
+	// Build imports.
+	imports, err := svm.NewImportsBuilder().
+		RegisterFunction(
+			"add",
+			svm.ValueTypes{svm.TypeI32, svm.TypeI32},
+			svm.ValueTypes{svm.TypeI32},
+			func(args []svm.Value) ([]svm.Value, error) {
+				a := args[0].ToI32()
+				b := args[1].ToI32()
+				fmt.Printf("`add` invoked by SVM; args: (%v, %v)\n", a, b)
+
+				res := a + b
+				return []svm.Value{svm.I32(res)}, nil
+			},
+		).RegisterFunction(
+		"mul",
+		svm.ValueTypes{svm.TypeI32, svm.TypeI32},
+		svm.ValueTypes{svm.TypeI32},
+		func(args []svm.Value) ([]svm.Value, error) {
+			a := args[0].ToI32()
+			b := args[1].ToI32()
+			fmt.Printf("`mul` invoked by SVM; args: (%v, %v)\n", a, b)
+
+			res := a * b
+			return []svm.Value{svm.I32(res)}, nil
+		},
+	).Build()
 	noError(err)
 	defer imports.Free()
 
-	kv, err := svm.NewMemKVStore()
+	kv, err := svm.NewStateKV_Mem()
 	noError(err)
 	defer kv.Free()
 
-	host := unsafe.Pointer(&host)
+	//kv, err := svm.NewStateKV_FFI()
+	//noError(err)
+	//defer kv.Free()
 
-	runtime, err := svm.NewRuntimeBuilder().
+	//kv.RegisterGet(func(key []byte) []byte {
+	//	fmt.Printf("FFI-state-KV `get` invoked by SVM; arg: (%x)\n", key)
+	//
+	//	v := make([]byte, svm.KVValueSize)
+	//	v[0] = 1
+	//	return v
+	//})
+	//kv.RegisterSet(func(key []byte, val []byte) {
+	//	fmt.Printf("FFI-state-KV `set` invoked by SVM; key: %x, val: %x\n", key, val)
+	//})
+	//kv.RegisterDiscard(func() {
+	//	fmt.Printf("FFI-state-KV `discard` invoked by SVM\n")
+	//})
+	//kv.RegisterCheckpoint(func() []byte {
+	//	fmt.Printf("FFI-state-KV `checkpoint` invoked by SVM\n")
+	//
+	//	state := make([]byte, svm.StateSize)
+	//	return state
+	//})
+	//kv.RegisterHead(func() []byte {
+	//	fmt.Printf("FFI-state-KV `head` invoked by SVM\n")
+	//
+	//	state := make([]byte, svm.StateSize)
+	//	return state
+	//})
+
+	// Initialize runtime.
+	svmRuntime, err := svm.NewRuntimeBuilder().
 		WithImports(imports).
-		WithMemKVStore(kv).
-		WithHost(host).
+		WithStateKV_Mem(&kv).
 		Build()
 	noError(err)
-	defer runtime.Free()
-	fmt.Printf("1) Runtime: %v\n\n", runtime)
+	spew.Dump(svmRuntime)
+	println()
+	defer svmRuntime.Free()
 
 	version := 0
-	hostCtx := svm.NewHostCtx().Encode()
 	gasMetering := false
 	gasLimit := uint64(0)
 
-	// 2) Deploy Template.
-	// TODO: add on-the-fly wat2wasm translation
-	code, err := ioutil.ReadFile("counter_template.wasm")
-	dataLayout := svm.DataLayout{4}
+	// Deploy Template: generate tx.
+	code, err := ioutil.ReadFile(templateFilename)
 	noError(err)
 	name := "name"
+	dataLayout := svm.DataLayout{4}
+	tx, err := codec.EncodeTxDeployTemplate(version, name, code, dataLayout.Encode())
+	noError(err)
+
+	// Deploy Template: validate tx.
+	// TODO: re-enable; temporarily disabled due to pending SVM issue.
+	//err = svm.ValidateTemplate(svmRuntime, tx)
+	//noError(err)
+
+	// Deploy Template.
 	author := svm.Address{}
-	deployTemplateResult, err := deployTemplate(
-		runtime,
-		code,
-		dataLayout,
-		version,
-		name,
+	receiptDeployTemplate, err := svm.DeployTemplate(
+		svmRuntime,
+		tx,
 		author,
-		hostCtx,
 		gasMetering,
 		gasLimit,
 	)
-	fmt.Printf("2) %v\n", deployTemplateResult)
+	noError(err)
+	spew.Dump(receiptDeployTemplate)
+	println()
 
-	// 3) Spawn App.
+	// Spawn App: generate tx.
+	calldata, err := codec.EncodeCallData(
+		[]string{"u32"},
+		[]int{initialValue},
+	)
+	noError(err)
+	tx, err = codec.EncodeTxSpawnApp(
+		version,
+		receiptDeployTemplate.TemplateAddr[:],
+		name,
+		"initialize",
+		calldata,
+	)
+	noError(err)
+
+	// Spawn App: validate tx.
 	creator := svm.Address{}
-	spawnAppResult, err := spawnApp(
-		runtime,
-		version,
-		deployTemplateResult.TemplateAddr,
-		uint16(0),
-		[]byte(nil),
-		svm.Values{svm.I32(5)},
+	err = svm.ValidateApp(svmRuntime, tx)
+	noError(err)
+
+	// Spawn App.
+	receiptSpawnApp, err := svm.SpawnApp(
+		svmRuntime,
+		tx,
 		creator,
-		hostCtx,
 		gasMetering,
 		gasLimit,
 	)
-	fmt.Printf("3) %v\n", spawnAppResult)
+	noError(err)
+	spew.Dump(receiptSpawnApp)
+	returndata, err := codec.DecodeReturndata(receiptSpawnApp.Returndata)
+	noError(err)
+	fmt.Printf("Decoded Returndata: %v\n\n", returndata)
+	println()
 
-	// 4) Exec App
-	// 4.0) Storage value increment.
-	execAppResult, err := execApp(
-		runtime,
+	// Exec App: generate tx.
+	calldata, err = codec.EncodeCallData(
+		[]string{"u32"},
+		[]int{5},
+	)
+	noError(err)
+	tx, err = codec.EncodeTxExecApp(
 		version,
-		spawnAppResult.AppAddr,
-		uint16(0),
-		[]byte(nil),
-		svm.Values{svm.I32(5)},
-		spawnAppResult.InitialState,
-		hostCtx,
-		gasMetering,
-		gasLimit,
+		receiptSpawnApp.AppAddr[:],
+		"counter_add",
+		calldata,
 	)
-	fmt.Printf("4.0) %v\n", execAppResult)
+	noError(err)
+	_, err = svm.ValidateAppTx(svmRuntime, tx)
+	noError(err)
 
-	// 4.1) Storage value get.
-	execAppResult, err = execApp(
-		runtime,
+	// Exec App.
+	receiptExecApp, err := svm.ExecApp(svmRuntime, tx, receiptSpawnApp.State, gasMetering, gasLimit)
+	noError(err)
+	spew.Dump(receiptExecApp)
+	returndata, err = codec.DecodeReturndata(receiptExecApp.Returndata)
+	noError(err)
+	fmt.Printf("Decoded Returndata: %v\n\n", returndata)
+
+	// Exec App: generate tx.
+	calldata, err = codec.EncodeCallData(
+		[]string{"u32"},
+		[]int{5},
+	)
+	noError(err)
+	tx, err = codec.EncodeTxExecApp(
 		version,
-		spawnAppResult.AppAddr,
-		uint16(1),
-		[]byte(nil),
-		svm.Values(nil),
-		execAppResult.NewState,
-		hostCtx,
-		gasMetering,
-		gasLimit,
+		receiptSpawnApp.AppAddr[:],
+		"counter_mul",
+		calldata,
 	)
-	fmt.Printf("4.1) %v\n", execAppResult)
+	noError(err)
+	_, err = svm.ValidateAppTx(svmRuntime, tx)
+	noError(err)
 
-	// 4.2) Host import function value increment.
-	execAppResult, err = execApp(
-		runtime,
-		version,
-		spawnAppResult.AppAddr,
-		uint16(2),
-		[]byte(nil),
-		svm.Values{svm.I32(25)},
-		execAppResult.NewState,
-		hostCtx,
-		gasMetering,
-		gasLimit,
-	)
-	fmt.Printf("4.2) %v\n", execAppResult)
+	// Exec App.
+	receiptExecApp, err = svm.ExecApp(svmRuntime, tx, receiptSpawnApp.State, gasMetering, gasLimit)
+	noError(err)
+	spew.Dump(receiptExecApp)
+	returndata, err = codec.DecodeReturndata(receiptExecApp.Returndata)
+	noError(err)
+	fmt.Printf("Decoded Returndata: %v\n\n", returndata)
 
-	// 4.3) Host import function value get.
-	execAppResult, err = execApp(
-		runtime,
-		version,
-		spawnAppResult.AppAddr,
-		uint16(3),
-		[]byte(nil),
-		svm.Values(nil),
-		execAppResult.NewState,
-		hostCtx,
-		gasMetering,
-		gasLimit,
-	)
-	fmt.Printf("4.3) %v\n", execAppResult)
-}
-
-func deployTemplate(
-	runtime svm.Runtime,
-	code []byte,
-	dataLayout svm.DataLayout,
-	version int,
-	name string,
-	author svm.Address,
-	hostCtx []byte,
-	gasMetering bool,
-	gasLimit uint64,
-) (*svm.DeployTemplateResult, error) {
-	appTemplate, err := svm.EncodeAppTemplate(
-		version,
-		name,
-		code,
-		dataLayout,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = svm.ValidateTemplate(runtime, appTemplate); err != nil {
-		return nil, err
-	}
-
-	res, err := svm.DeployTemplate(
-		runtime,
-		appTemplate,
-		author,
-		hostCtx,
-		gasMetering,
-		gasLimit,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func spawnApp(
-	runtime svm.Runtime,
-	version int,
-	templateAddr svm.Address,
-	ctorIndex uint16,
-	ctorBuffer []byte,
-	ctorArgs svm.Values,
-	creator svm.Address,
-	hostCtx []byte,
-	gasMetering bool,
-	gasLimit uint64,
-) (*svm.SpawnAppResult, error) {
-	spawnApp, err := svm.EncodeSpawnApp(
-		version,
-		templateAddr,
-		ctorIndex,
-		ctorBuffer,
-		ctorArgs,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = svm.ValidateApp(runtime, spawnApp); err != nil {
-		return nil, err
-	}
-
-	res, err := svm.SpawnApp(
-		runtime,
-		spawnApp,
-		creator,
-		hostCtx,
-		gasMetering,
-		gasLimit,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func execApp(
-	runtime svm.Runtime,
-	version int,
-	appAddr svm.Address,
-	funcIndex uint16,
-	funcBuffer []byte,
-	funcArgs svm.Values,
-	appState []byte,
-	hostCtx []byte,
-	gasMetering bool,
-	gasLimit uint64,
-) (*svm.ExecAppResult, error) {
-	appTx, err := svm.EncodeAppTx(
-		version,
-		appAddr,
-		funcIndex,
-		funcBuffer,
-		funcArgs,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err = svm.ValidateAppTx(runtime, appTx); err != nil {
-		return nil, err
-	}
-
-	execAppResult, err := svm.ExecApp(runtime, appTx, appState, hostCtx, gasMetering, gasLimit)
-	if err != nil {
-		return nil, err
-	}
-
-	return execAppResult, nil
 }
 
 func noError(err error) {

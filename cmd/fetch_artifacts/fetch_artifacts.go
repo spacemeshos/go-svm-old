@@ -27,9 +27,10 @@ func init() {
 }
 
 type archivesDownloadUrl struct {
-	linux   string
-	macOS   string
-	windows string
+	linux     string
+	macOS     string
+	windows   string
+	wasmCodec string
 }
 
 func main() {
@@ -47,6 +48,7 @@ func main() {
 	noError(fetch(archivesUrl.linux, dest))
 	noError(fetch(archivesUrl.macOS, dest))
 	noError(fetch(archivesUrl.windows, dest))
+	noError(fetch(archivesUrl.wasmCodec, dest))
 }
 
 func runUrl() (string, error) {
@@ -133,8 +135,8 @@ func archivesUrl(artifactsUrl string) (archivesDownloadUrl, error) {
 	if !ok {
 		return archivesDownloadUrl{}, fmt.Errorf("unexpected response: %s", rawBody)
 	}
-	if totalCount != 3 {
-		return archivesDownloadUrl{}, fmt.Errorf("found artifacts listing for %v platforms, expected 3", totalCount)
+	if totalCount != 4 {
+		return archivesDownloadUrl{}, fmt.Errorf("found artifacts listing for %v platforms, expected 4", totalCount)
 	}
 
 	ret := archivesDownloadUrl{}
@@ -149,6 +151,8 @@ func archivesUrl(artifactsUrl string) (archivesDownloadUrl, error) {
 			ret.macOS = url
 		case "bins-Windows--release":
 			ret.windows = url
+		case "svm_codec.wasm":
+			ret.wasmCodec = url
 		default:
 			return archivesDownloadUrl{}, fmt.Errorf("invalid artifact tag: %v", artifact["name"])
 		}
