@@ -13,9 +13,9 @@ type sectionKind uint16
 
 const (
 	// CodeSection is a kind of section for a code definition
-	CodeSection  sectionKind = 1
+	CodeSection sectionKind = 1
 	// DataSection is a kind of section for data layouts
-	DataSection  sectionKind = 2
+	DataSection sectionKind = 2
 	// CtorsSection is a kind of section for constructors
 	CtorsSection sectionKind = 3
 )
@@ -38,7 +38,7 @@ type codeGasMode uint16
 
 const (
 	// GasModeFixed is a default mode for gas calculation for the code
-	GasModeFixed    codeGasMode = 1
+	GasModeFixed codeGasMode = 1
 )
 
 // WasmFixedGasCode is the abstraction for wasm code assembly with fixed gas calculation
