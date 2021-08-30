@@ -131,13 +131,13 @@ func archivesUrl(artifactsUrl string) (archivesDownloadUrl, error) {
 		return archivesDownloadUrl{}, err
 	}
 
-	totalCount, ok := body["total_count"].(float64)
-	if !ok {
-		return archivesDownloadUrl{}, fmt.Errorf("unexpected response: %s", rawBody)
-	}
-	if totalCount != 4 {
-		return archivesDownloadUrl{}, fmt.Errorf("found artifacts listing for %v platforms, expected 4", totalCount)
-	}
+	//totalCount, ok := body["total_count"].(float64)
+	//if !ok {
+	//	return archivesDownloadUrl{}, fmt.Errorf("unexpected response: %s", rawBody)
+	//}
+	//if totalCount != 4 {
+	//	return archivesDownloadUrl{}, fmt.Errorf("found artifacts listing for %v platforms, expected 4", totalCount)
+	//}
 
 	ret := archivesDownloadUrl{}
 	items := body["artifacts"].([]interface{})
@@ -145,14 +145,14 @@ func archivesUrl(artifactsUrl string) (archivesDownloadUrl, error) {
 		artifact := item.(map[string]interface{})
 		url := artifact["archive_download_url"].(string)
 		switch artifact["name"] {
-		case "bins-Linux--release":
+		case "bins-Linux-release":
 			ret.linux = url
-		case "bins-macOS--release":
+		case "bins-macOS-release":
 			ret.macOS = url
-		case "bins-Windows--release":
+		case "bins-Windows-release":
 			ret.windows = url
-		case "svm_codec.wasm":
-			ret.wasmCodec = url
+		//case "svm_codec.wasm":
+		//	ret.wasmCodec = url
 		default:
 			return archivesDownloadUrl{}, fmt.Errorf("invalid artifact tag: %v", artifact["name"])
 		}
@@ -239,7 +239,7 @@ func unzip(path string) error {
 
 func req(method, url string) *http.Request {
 	req, _ := http.NewRequest(method, url, nil)
-	req.Header.Set("Authorization", fmt.Sprintf("token %v", token))
+	//req.Header.Set("Authorization", fmt.Sprintf("token %v", token))
 	return req
 }
 

@@ -1,18 +1,16 @@
 package svm
 
-import "fmt"
+import "C"
+import "errors"
 
-// svmError is error type which represent an error originated in the SVM runtime.
-type svmError struct {
-	s string
+type Error struct {
+	ByteArray
 }
 
-// newSvmError creates a new svmError instance from []byte slice.
-func newSvmError(b []byte) error {
-	return &svmError{s: string(b)}
+func (e Error) ToError(prefix string) error {
+	return errors.New(prefix + string(e.Bytes()))
 }
 
-// Error helps svmError to implement the error interface.
-func (e *svmError) Error() string {
-	return fmt.Sprintf("svm error: %v", e.s)
+func (e *Error) ptr() *byteArray {
+	return &e.byteArray
 }

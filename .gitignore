@@ -19,3 +19,4 @@ examples/counter/wasm/counter/target
 cmd/fetch_artifacts/fetch_artifacts
 
 svm-dep/target
+/svm-dist/

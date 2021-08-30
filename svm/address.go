@@ -1,8 +1,11 @@
 package svm
 
-import "go-svm/common"
+const AddressLength = 20
 
-func svmByteArrayCloneToAddress(ba cSvmByteArray) Address {
-	b := svmByteArrayCloneToBytes(ba)
-	return common.BytesToAddress(b)
+type Address [AddressLength]byte
+
+func StringAddress(str string) Address {
+	a := Address{}
+	copy(a[:], str)
+	return a
 }
