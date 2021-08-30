@@ -13,7 +13,7 @@ import (
 
 type byteArray = C.svm_byte_array
 
-// ByteArrey is the svm_byte_array wrapper
+// ByteArray is the svm_byte_array wrapper
 type ByteArray struct {
 	byteArray
 }

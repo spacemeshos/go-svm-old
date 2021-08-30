@@ -26,7 +26,7 @@ func init() {
 	flag.Parse()
 }
 
-type archivesDownloadUrl struct {
+type archivesDownloadURL struct {
 	linux     string
 	macOS     string
 	windows   string
@@ -36,22 +36,22 @@ type archivesDownloadUrl struct {
 func main() {
 	log.Printf("%v; branch: %v, token: %v, dest: %v\n", filepath.Base(os.Args[0]), branch, token, dest)
 
-	runUrl, err := runUrl()
+	runURL, err := runURL()
 	noError(err)
 
-	artifactsUrl, err := artifactsUrl(runUrl)
+	artifactsURL, err := artifactsURL(runURL)
 	noError(err)
 
-	archivesUrl, err := archivesUrl(artifactsUrl)
+	archivesURL, err := archivesURL(artifactsURL)
 	noError(err)
 
-	noError(fetch(archivesUrl.linux, dest))
-	noError(fetch(archivesUrl.macOS, dest))
-	noError(fetch(archivesUrl.windows, dest))
-	noError(fetch(archivesUrl.wasmCodec, dest))
+	noError(fetch(archivesURL.linux, dest))
+	noError(fetch(archivesURL.macOS, dest))
+	noError(fetch(archivesURL.windows, dest))
+	noError(fetch(archivesURL.wasmCodec, dest))
 }
 
-func runUrl() (string, error) {
+func runURL() (string, error) {
 	url := "https://api.github.com/repos/spacemeshos/svm/actions/runs"
 	if branch != "" {
 		url += fmt.Sprintf("?branch=%v", branch)
@@ -87,9 +87,9 @@ func runUrl() (string, error) {
 	return workflowRun["url"].(string), nil
 }
 
-func artifactsUrl(runUrl string) (string, error) {
-	log.Printf("GET %v", runUrl)
-	res, err := http.DefaultClient.Do(req("GET", runUrl))
+func artifactsURL(runURL string) (string, error) {
+	log.Printf("GET %v", runURL)
+	res, err := http.DefaultClient.Do(req("GET", runURL))
 	if err != nil {
 		return "", err
 	}
@@ -113,33 +113,33 @@ func artifactsUrl(runUrl string) (string, error) {
 	return url, nil
 }
 
-func archivesUrl(artifactsUrl string) (archivesDownloadUrl, error) {
-	log.Printf("GET %v", artifactsUrl)
-	res, err := http.DefaultClient.Do(req("GET", artifactsUrl))
+func archivesURL(artifactsURL string) (archivesDownloadURL, error) {
+	log.Printf("GET %v", artifactsURL)
+	res, err := http.DefaultClient.Do(req("GET", artifactsURL))
 	if err != nil {
-		return archivesDownloadUrl{}, err
+		return archivesDownloadURL{}, err
 	}
 
 	defer res.Body.Close()
 	rawBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return archivesDownloadUrl{}, err
+		return archivesDownloadURL{}, err
 	}
 
 	var body map[string]interface{}
 	if err := json.Unmarshal(rawBody, &body); err != nil {
-		return archivesDownloadUrl{}, err
+		return archivesDownloadURL{}, err
 	}
 
 	//totalCount, ok := body["total_count"].(float64)
 	//if !ok {
-	//	return archivesDownloadUrl{}, fmt.Errorf("unexpected response: %s", rawBody)
+	//	return archivesDownloadURL{}, fmt.Errorf("unexpected response: %s", rawBody)
 	//}
 	//if totalCount != 4 {
-	//	return archivesDownloadUrl{}, fmt.Errorf("found artifacts listing for %v platforms, expected 4", totalCount)
+	//	return archivesDownloadURL{}, fmt.Errorf("found artifacts listing for %v platforms, expected 4", totalCount)
 	//}
 
-	ret := archivesDownloadUrl{}
+	ret := archivesDownloadURL{}
 	items := body["artifacts"].([]interface{})
 	for _, item := range items {
 		artifact := item.(map[string]interface{})
@@ -154,7 +154,7 @@ func archivesUrl(artifactsUrl string) (archivesDownloadUrl, error) {
 		//case "svm_codec.wasm":
 		//	ret.wasmCodec = url
 		default:
-			return archivesDownloadUrl{}, fmt.Errorf("invalid artifact tag: %v", artifact["name"])
+			return archivesDownloadURL{}, fmt.Errorf("invalid artifact tag: %v", artifact["name"])
 		}
 	}
 

@@ -86,14 +86,14 @@ func (cs Ctors) encode(bs []byte) ([]byte, error) {
 	return bs, nil
 }
 
-type LayoutKind uint16
+type layoutKind uint16
 
 const (
 	// Fixed is a fixed data layout
-	Fixed LayoutKind = 1
+	Fixed layoutKind = 1
 )
 
-// FixedLayot is a data section abstraction
+// FixedLayout is a data section abstraction
 type FixedLayout []uint32
 
 func (fl FixedLayout) kind() sectionKind {
