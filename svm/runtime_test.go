@@ -79,8 +79,10 @@ func Test_RuntimeSuccess(t *testing.T) {
 	callRcpt, err := rt.Call(callEnv, callMsg, callCtx)
 	assert.NoError(t, err)
 	assert.True(t, callRcpt.Success)
-	assert.Equal(t, 11, int(callRcpt.Return[0].Uint()))
-	assert.Equal(t, 16, int(callRcpt.Return[1].Uint()))
+	d, err := callRcpt.Return.Decode()
+	assert.NoError(t, err)
+	assert.Equal(t, 11, int(d[0].Uint()))
+	assert.Equal(t, 16, int(d[1].Uint()))
 }
 
 func Test_RuntimeFailure(t *testing.T) {

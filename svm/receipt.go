@@ -53,10 +53,18 @@ func (dr *DeployReceipt) Decode(bs []byte) error {
 	return nil
 }
 
+// ReturnData is a wrapper to data returnde from Runtime.Call/Spawn endpoints
+type ReturnData []byte
+
+// Decode constructs array of reflect.Value with bytes returned from Runtime endpoint
+func (rd ReturnData) Decode() ([]reflect.Value, error) {
+	return DecodeReturnData(rd)
+}
+
 // ReceiptResult is a receipt part returned from Runtime.Call/Spawn endpoints
 type ReceiptResult struct {
 	State
-	Return  []reflect.Value
+	Return  ReturnData
 	GasUsed uint64
 	Logs    [][]byte
 }
@@ -72,7 +80,7 @@ func (rr *ReceiptResult) Decode(bs []byte) (err error) {
 	if len(bs) < 2+returnLen {
 		return fmt.Errorf(strInvalidReceipt + ": no return data here")
 	}
-	rr.Return, err = DecodeReturnData(bs[2 : returnLen+2])
+	rr.Return = bs[2 : returnLen+2]
 	if err != nil {
 		return
 	}
