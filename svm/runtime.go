@@ -7,10 +7,12 @@ package svm
 import "C"
 import "unsafe"
 
+// Runtime is a wrapper for svm_runtime
 type Runtime struct {
 	svmRuntime unsafe.Pointer
 }
 
+// NewRuntime creates new SVM runtime
 func NewRuntime() (*Runtime, error) {
 	rt := &Runtime{}
 	err := Error{}
@@ -21,6 +23,7 @@ func NewRuntime() (*Runtime, error) {
 	return rt, nil
 }
 
+// Destroy releases SVM runtime
 func (rt *Runtime) Destroy() {
 	if rt.svmRuntime != nil {
 		C.svm_runtime_destroy(rt.svmRuntime)
@@ -28,11 +31,13 @@ func (rt *Runtime) Destroy() {
 	}
 }
 
+// Close is an idiomatic way to release runtime
 func (rt *Runtime) Close() error {
 	rt.Destroy()
 	return nil
 }
 
+// ValidateCall is a wrapped to svm_validate_call endpoint
 func (rt *Runtime) ValidateCall(msg *Message) error {
 	err := Error{}
 	if res := C.svm_validate_call(rt.svmRuntime, msg.byteArray, err.ptr()); res != C.SVM_SUCCESS {
@@ -42,6 +47,7 @@ func (rt *Runtime) ValidateCall(msg *Message) error {
 	return nil
 }
 
+// Call is a wrapper to svm_call endpoint
 func (rt *Runtime) Call(envelope *Envelope, msg *Message, ctx *Context) (*CallReceipt, error) {
 	var err Error
 	rcpt := &ByteArray{}
@@ -61,6 +67,7 @@ func (rt *Runtime) Call(envelope *Envelope, msg *Message, ctx *Context) (*CallRe
 	return cr, nil
 }
 
+// ValidateSpawn is a wrapper to svm_validate_spawn endpoint
 func (rt *Runtime) ValidateSpawn(msg *Message) error {
 	err := Error{}
 	if res := C.svm_validate_call(rt.svmRuntime, msg.byteArray, err.ptr()); res != C.SVM_SUCCESS {
@@ -70,6 +77,7 @@ func (rt *Runtime) ValidateSpawn(msg *Message) error {
 	return nil
 }
 
+// Spawn is a wrapper to svm_spawn endpoint
 func (rt *Runtime) Spawn(envelope *Envelope, msg *Message, ctx *Context) (*SpawnReceipt, error) {
 	var err Error
 	rcpt := &ByteArray{}
@@ -89,6 +97,7 @@ func (rt *Runtime) Spawn(envelope *Envelope, msg *Message, ctx *Context) (*Spawn
 	return sr, nil
 }
 
+// ValidateDeploy is a wrapper to svm_validate_deploy endpoint
 func (rt *Runtime) ValidateDeploy(msg *Message) error {
 	err := Error{}
 	if res := C.svm_validate_deploy(rt.svmRuntime, msg.byteArray, err.ptr()); res != C.SVM_SUCCESS {
@@ -98,6 +107,7 @@ func (rt *Runtime) ValidateDeploy(msg *Message) error {
 	return nil
 }
 
+// Deploy is a wrapper to svm_deploy endpoint
 func (rt *Runtime) Deploy(envelope *Envelope, msg *Message, ctx *Context) (*DeployReceipt, error) {
 	var err Error
 	rcpt := &ByteArray{}

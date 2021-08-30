@@ -1,9 +1,11 @@
 package svm
 
-const AddressLength = 20
+const addressLength = 20
 
-type Address [AddressLength]byte
+// Address is the address abstraction
+type Address [addressLength]byte
 
+// StringAddress creates address from string
 func StringAddress(str string) Address {
 	a := Address{}
 	copy(a[:], str)

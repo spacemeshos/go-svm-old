@@ -6,14 +6,17 @@ import (
 	"reflect"
 )
 
+// Call32u the uint32 abstraction for SVM calldata
 type Call32u uint32
 
+// Encode uint32 value as SVM calldata
 func (c Call32u) Encode() []byte {
 	bs := []byte{0b_0_111_0011, 0, 0, 0, 0}
 	binary.BigEndian.PutUint32(bs[1:], uint32(c))
 	return bs
 }
 
+// DecodeReturnData as array of reflect.Value
 func DecodeReturnData(bs []byte) (r []reflect.Value, err error) {
 	if len(bs) == 0 {
 		return []reflect.Value{}, nil
@@ -26,7 +29,7 @@ func DecodeReturnData(bs []byte) (r []reflect.Value, err error) {
 		r = make([]reflect.Value, arrLen)
 		bs = bs[1:]
 		for i := range r {
-			r[i], bs, err = DecodeValue(bs)
+			r[i], bs, err = decodeValue(bs)
 			if err != nil {
 				return
 			}
@@ -34,7 +37,7 @@ func DecodeReturnData(bs []byte) (r []reflect.Value, err error) {
 		return
 	}
 	r = []reflect.Value{{}}
-	r[0], _, err = DecodeValue(bs)
+	r[0], _, err = decodeValue(bs)
 	return
 }
 
@@ -45,7 +48,7 @@ func copyBeVarlen(bs []byte, ln int, ext []byte) {
 	}
 }
 
-func DecodeValue(bs []byte) (reflect.Value, []byte, error) {
+func decodeValue(bs []byte) (reflect.Value, []byte, error) {
 	switch bs[0] {
 	case 0b_0_000_0000, 0b_0_001_0000: // False/True
 		return reflect.ValueOf(bs[0] != 0), bs[1:], nil
@@ -53,8 +56,8 @@ func DecodeValue(bs []byte) (reflect.Value, []byte, error) {
 		return reflect.ValueOf(nil), bs[1:], nil
 	case 0b_0_100_0000: // Address
 		addr := Address{}
-		copy(addr[:], bs[1:1+AddressLength])
-		return reflect.ValueOf(addr), bs[AddressLength+1:], nil
+		copy(addr[:], bs[1:1+addressLength])
+		return reflect.ValueOf(addr), bs[addressLength+1:], nil
 	case 0b_0_000_0010: // signed int8
 		return reflect.ValueOf(int8(bs[1])), bs[2:], nil
 	case 0b_0_001_0010: // unsigned int8

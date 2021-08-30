@@ -13,10 +13,12 @@ import (
 
 type byteArray = C.svm_byte_array
 
+// ByteArrey is the svm_byte_array wrapper
 type ByteArray struct {
 	byteArray
 }
 
+// FromBytes fills ByteArry with bytes
 func (ba *ByteArray) FromBytes(bs []byte) error {
 	if ba.capacity < C.uint(len(bs)) {
 		return fmt.Errorf("bytearray is too small, required %v bytes but just %v is available", len(bs), ba.capacity)
@@ -26,10 +28,12 @@ func (ba *ByteArray) FromBytes(bs []byte) error {
 	return nil
 }
 
+// Bytes returns bytes from wrapped svm_byte_array
 func (ba *ByteArray) Bytes() []byte {
 	return C.GoBytes(unsafe.Pointer(ba.bytes), C.int(ba.length))
 }
 
+// Destroy releases associated resources with svm_byte_array
 func (ba *ByteArray) Destroy() {
 	if ba.byteArray.capacity != 0 {
 		C.svm_byte_array_destroy(ba.byteArray)
@@ -38,6 +42,7 @@ func (ba *ByteArray) Destroy() {
 	}
 }
 
+// Close is the go idiomatic way to destory svm_byte_array
 func (ba *ByteArray) Close() error {
 	ba.Destroy()
 	return nil

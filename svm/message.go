@@ -11,22 +11,26 @@ import (
 
 var errMessageTooLong = errors.New("message too long")
 
+// Message is an SVM message wrapper
 type Message struct {
 	ByteArray
 }
 
+// NewMessage creates new message with specified data length
 func NewMessage(length int) *Message {
 	m := &Message{}
 	m.byteArray = C.svm_message_alloc(C.uint(length))
 	return m
 }
 
+// NewMessageFromBytes creates new SVM message from specified bytes
 func NewMessageFromBytes(bs []byte) *Message {
 	m := NewMessage(len(bs))
 	m.FromBytes(bs)
 	return m
 }
 
+// CallMessage is an message abstraction for Runtime.Call endpoint
 type CallMessage struct {
 	Version    int
 	Target     Address
@@ -35,10 +39,11 @@ type CallMessage struct {
 	CallData   []byte
 }
 
+// Encode converts call message abstraction into svm_byte_array wrapped by Message
 func (cm CallMessage) Encode() (*Message, error) {
 	p := 0
 	fn := []byte(cm.FuncName)
-	bs := make([]byte, 2+AddressLength+1+len(fn)+1+len(cm.VerifyData)+1+len(cm.CallData))
+	bs := make([]byte, 2+addressLength+1+len(fn)+1+len(cm.VerifyData)+1+len(cm.CallData))
 	encode := func(b []byte) error {
 		ln := len(b)
 		if ln > 255 {
@@ -51,8 +56,8 @@ func (cm CallMessage) Encode() (*Message, error) {
 	}
 	binary.BigEndian.PutUint16(bs[p:p+2], uint16(cm.Version))
 	p += 2
-	copy(bs[p:p+AddressLength], cm.Target[:])
-	p += AddressLength
+	copy(bs[p:p+addressLength], cm.Target[:])
+	p += addressLength
 	if err := encode(fn); err != nil {
 		return nil, err
 	}
@@ -65,6 +70,7 @@ func (cm CallMessage) Encode() (*Message, error) {
 	return NewMessageFromBytes(bs), nil
 }
 
+// SpawnMessage is am message abstraction for Runtime.Spawn endpoint
 type SpawnMessage struct {
 	Version  int
 	Template Address
@@ -73,11 +79,12 @@ type SpawnMessage struct {
 	CallData []byte
 }
 
+// Encode converts spaen message abstraction into svm_byte_array wrapped by Message
 func (cm SpawnMessage) Encode() (*Message, error) {
 	p := 0
 	fn := []byte(cm.Name)
 	ct := []byte(cm.Ctor)
-	bs := make([]byte, 2+AddressLength+1+len(fn)+1+len(ct)+1+len(cm.CallData))
+	bs := make([]byte, 2+addressLength+1+len(fn)+1+len(ct)+1+len(cm.CallData))
 	encode := func(b []byte) error {
 		ln := len(b)
 		if ln > 255 {
@@ -90,8 +97,8 @@ func (cm SpawnMessage) Encode() (*Message, error) {
 	}
 	binary.BigEndian.PutUint16(bs[p:p+2], uint16(cm.Version))
 	p += 2
-	copy(bs[p:p+AddressLength], cm.Template[:])
-	p += AddressLength
+	copy(bs[p:p+addressLength], cm.Template[:])
+	p += addressLength
 	if err := encode(fn); err != nil {
 		return nil, err
 	}
@@ -104,8 +111,10 @@ func (cm SpawnMessage) Encode() (*Message, error) {
 	return NewMessageFromBytes(bs), nil
 }
 
-type DeployMessage []Section
+// DeployMessage is an abstraction for Runtime.Deploy endpoint
+type DeployMessage []section
 
+// Encode converts deply message abstraction into svm_byte_array wrapped by Message
 func (dm DeployMessage) Encode() (*Message, error) {
 	var err error
 	sectionsLength := 0

@@ -1,43 +1,50 @@
 package svm
 
+// SvmVersion is a current SVM version
 const SvmVersion = 0
 
-type Section interface {
+type section interface {
 	encode(bs []byte) ([]byte, error)
 	length() int
-	kind() SectionKind
+	kind() sectionKind
 }
 
-type SectionKind uint16
+type sectionKind uint16
 
 const (
-	CodeSection  SectionKind = 1
-	DataSection  SectionKind = 2
-	CtorsSection SectionKind = 3
+	// CodeSection is a kind of section for a code definition
+	CodeSection  sectionKind = 1
+	// DataSection is a kind of section for data layouts
+	DataSection  sectionKind = 2
+	// CtorsSection is a kind of section for constructors
+	CtorsSection sectionKind = 3
 )
 
-type CodeKind uint16
+type codeKind uint16
 
 const (
-	CodeKindWasm CodeKind = 1
+	// WasmCode defines code as wasm assembly
+	WasmCode codeKind = 1
 )
 
-type CodeFlags uint64
+type codeFlags uint64
 
 const (
-	CodeExecFlags CodeFlags = 0x01
+	// CodeExecFlags is the default code flags
+	CodeExecFlags codeFlags = 0x01
 )
 
-type CodeGasMode uint16
+type codeGasMode uint16
 
 const (
-	GasModeFixed    CodeGasMode = 1
-	GasModeMetering CodeGasMode = 2
+	// GasModeFixed is a default mode for gas calculation for the code
+	GasModeFixed    codeGasMode = 1
 )
 
+// WasmFixedGasCode is the abstraction for wasm code assembly with fixed gas calculation
 type WasmFixedGasCode []byte
 
-func (cs WasmFixedGasCode) kind() SectionKind {
+func (cs WasmFixedGasCode) kind() sectionKind {
 	return CodeSection
 }
 
@@ -46,18 +53,19 @@ func (cs WasmFixedGasCode) length() int {
 }
 
 func (cs WasmFixedGasCode) encode(bs []byte) ([]byte, error) {
-	bs = Encode16be(bs, uint16(CodeKindWasm))
-	bs = Encode64be(bs, uint64(CodeExecFlags))
-	bs = Encode64be(bs, uint64(GasModeFixed))
-	bs = Encode32be(bs, SvmVersion)
-	bs = Encode32be(bs, uint32(len(cs)))
+	bs = encode16be(bs, uint16(WasmCode))
+	bs = encode64be(bs, uint64(CodeExecFlags))
+	bs = encode64be(bs, uint64(GasModeFixed))
+	bs = encode32be(bs, SvmVersion)
+	bs = encode32be(bs, uint32(len(cs)))
 	bs = append(bs, cs...)
 	return bs, nil
 }
 
+// Ctors is a constructors section abstraction
 type Ctors []string
 
-func (cs Ctors) kind() SectionKind {
+func (cs Ctors) kind() sectionKind {
 	return CtorsSection
 }
 
@@ -81,22 +89,24 @@ func (cs Ctors) encode(bs []byte) ([]byte, error) {
 type LayoutKind uint16
 
 const (
+	// Fixed is a fixed data layout
 	Fixed LayoutKind = 1
 )
 
+// FixedLayot is a data section abstraction
 type FixedLayout []uint32
 
-func (fl FixedLayout) kind() SectionKind {
+func (fl FixedLayout) kind() sectionKind {
 	return DataSection
 }
 
 func (fl FixedLayout) encode(bs []byte) ([]byte, error) {
-	bs = Encode16be(bs, uint16(1))
-	bs = Encode16be(bs, uint16(Fixed))
-	bs = Encode16be(bs, uint16(len(fl)))
-	bs = Encode32be(bs, 0)
+	bs = encode16be(bs, uint16(1))
+	bs = encode16be(bs, uint16(Fixed))
+	bs = encode16be(bs, uint16(len(fl)))
+	bs = encode32be(bs, 0)
 	for _, v := range fl {
-		bs = Encode16be(bs, uint16(v))
+		bs = encode16be(bs, uint16(v))
 	}
 	return bs, nil
 }
@@ -106,8 +116,8 @@ func (fl FixedLayout) length() int {
 }
 
 const previewSectionLength = 8 // ?
-func encodePreview(bs []byte, s Section) ([]byte, error) {
-	bs = Encode16be(bs, uint16(s.kind()))
-	bs = Encode32be(bs, uint32(s.length()))
+func encodePreview(bs []byte, s section) ([]byte, error) {
+	bs = encode16be(bs, uint16(s.kind()))
+	bs = encode32be(bs, uint32(s.length()))
 	return bs, nil
 }

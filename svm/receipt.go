@@ -7,21 +7,24 @@ import (
 	"reflect"
 )
 
+// TxType is a transaction type abstraction
 type TxType uint8
 
 var strInvalidReceipt = "invalid receipt"
 var errInvalidReceipt = errors.New(strInvalidReceipt)
 
+// Receipt is a common receipt part
 type Receipt struct {
 	TxType
 	Version int
 	Success bool
 }
 
-const CommonReceiptLength = 1 + 2 + 1
+const commonReceiptLength = 1 + 2 + 1
 
+// Decode fills Receipt from bytes array
 func (r *Receipt) Decode(bs []byte) error {
-	if len(bs) < CommonReceiptLength {
+	if len(bs) < commonReceiptLength {
 		return errInvalidReceipt
 	}
 	r.TxType = TxType(bs[0])
@@ -30,41 +33,35 @@ func (r *Receipt) Decode(bs []byte) error {
 	return nil
 }
 
+// DeployReceipt is a receipt returned by Runtime.Deply endpoint
 type DeployReceipt struct {
 	Receipt
 	Address Address
 	GasUsed uint64
 }
 
+// Decode fills receipt from bytes array
 func (dr *DeployReceipt) Decode(bs []byte) error {
 	if err := dr.Receipt.Decode(bs); err != nil {
 		return err
 	}
-	if len(bs) < CommonReceiptLength+AddressLength+8 {
+	if len(bs) < commonReceiptLength+addressLength+8 {
 		return errInvalidReceipt
 	}
-	copy(dr.Address[:], bs[CommonReceiptLength:CommonReceiptLength+AddressLength])
-	dr.GasUsed = binary.BigEndian.Uint64(bs[CommonReceiptLength+AddressLength:])
+	copy(dr.Address[:], bs[commonReceiptLength:commonReceiptLength+addressLength])
+	dr.GasUsed = binary.BigEndian.Uint64(bs[commonReceiptLength+addressLength:])
 	return nil
 }
 
-type ReturnData []reflect.Value
-
-func (rd *ReturnData) Decode(bs []byte) {
-	for len(bs) > 0 {
-		switch bs[0] {
-		case 0b00010110:
-		}
-	}
-}
-
+// ReceiptResult is a receipt part returned from Runtime.Call/Spawn endpoints
 type ReceiptResult struct {
 	State
-	Return  ReturnData
+	Return  []reflect.Value
 	GasUsed uint64
 	Logs    [][]byte
 }
 
+// Decode fills receipt from bytes array
 func (rr *ReceiptResult) Decode(bs []byte) (err error) {
 	if len(bs) < 32 {
 		return fmt.Errorf(strInvalidReceipt + ": no state here")
@@ -96,37 +93,41 @@ func (rr *ReceiptResult) Decode(bs []byte) (err error) {
 	return
 }
 
+// SpawnReceipt is an abstraction for receipt returned from Runtime.Spawn endpoint
 type SpawnReceipt struct {
 	Receipt
 	Address Address
 	ReceiptResult
 }
 
+// Decode fills receipt from bytes array
 func (sr *SpawnReceipt) Decode(bs []byte) error {
 	if err := sr.Receipt.Decode(bs); err != nil {
 		return err
 	}
 	if sr.Success {
-		if len(bs) < CommonReceiptLength+AddressLength+32 {
+		if len(bs) < commonReceiptLength+addressLength+32 {
 			return fmt.Errorf(strInvalidReceipt + ": no initial state here")
 		}
-		copy(sr.Address[:], bs[CommonReceiptLength:CommonReceiptLength+AddressLength])
-		return sr.ReceiptResult.Decode(bs[CommonReceiptLength+AddressLength:])
+		copy(sr.Address[:], bs[commonReceiptLength:commonReceiptLength+addressLength])
+		return sr.ReceiptResult.Decode(bs[commonReceiptLength+addressLength:])
 	}
 	return nil
 }
 
+// CallReceipt is an abstraction for receipt returned from runtime.Call endpoint
 type CallReceipt struct {
 	Receipt
 	ReceiptResult
 }
 
+// Decode fills receipt from bytes array
 func (cr *CallReceipt) Decode(bs []byte) error {
 	if err := cr.Receipt.Decode(bs); err != nil {
 		return err
 	}
 	if cr.Success {
-		return cr.ReceiptResult.Decode(bs[CommonReceiptLength:])
+		return cr.ReceiptResult.Decode(bs[commonReceiptLength:])
 	}
 	return nil
 }
