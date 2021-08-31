@@ -1,0 +1,54 @@
+name: CI
+
+env:
+  go-version: '1.15.13'
+
+on:
+  # run for all pull requests and pushes to certain branches
+  pull_request:
+  push:
+
+jobs:
+  quicktests:
+    env:
+      execute: 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: checkout
+        if: env.execute == 'true'
+        uses: actions/checkout@v2
+      - name: set up go
+        if: env.execute == 'true'
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.go-version }}
+      - name: fmt, tidy, lint
+        if: env.execute == 'true'
+        run: |
+          make install
+          make test-tidy
+          make test-fmt
+          make lint
+      - name: Mark the job as succeeded
+        if: env.execute == 'false'
+        run: exit 0
+
+  unittests:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    needs:
+      - quicktests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest] #, windows-latest, macos-latest]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: set up go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.go-version }}
+      - name: unit tests
+        run: make test-all
