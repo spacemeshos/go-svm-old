@@ -25,7 +25,7 @@ func (ba *ByteArray) FromBytes(bs []byte) error {
 	if ba.capacity < C.uint(len(bs)) {
 		return fmt.Errorf("bytearray is too small, required %v bytes but just %v is available", len(bs), ba.capacity)
 	}
-	C.memcpy(unsafe.Pointer(ba.bytes), unsafe.Pointer(&bs[0]), C.ulong(len(bs)))
+	C.memcpy(unsafe.Pointer(ba.bytes), unsafe.Pointer(&bs[0]), C.size_t(len(bs)))
 	ba.length = C.uint(len(bs))
 	return nil
 }
