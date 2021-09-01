@@ -1,7 +1,9 @@
 package svm
 
 /*
-#cgo LDFLAGS: -L ${SRCDIR}/../build -lsvm
+#cgo linux LDFLAGS: -L ${SRCDIR}/../build -lsvm
+#cgo darwin LDFLAGS: -L ${SRCDIR}/../build -lsvm
+#cgo windows LDFLAGS: -L ${SRCDIR}/../build -lsvm.dll
 #include "svm.h"
 #include "memory.h"
 */

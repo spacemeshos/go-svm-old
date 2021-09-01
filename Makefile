@@ -35,8 +35,13 @@ endif
         && cp ./target/wasm32-unknown-unknown/release/svm_cli_craft_deploy_example.wasm ./craft_deploy_example.wasm \
         && ./../../../../target/release/svm-cli craft-deploy --smwasm craft_deploy_example.wasm --meta Template-meta.json --output craft_deploy_example.bin
 	cp $(SVM_DIR)/crates/cli/examples/craft-deploy/craft_deploy_example.bin svm/test_assets/
-
 .PHONY: build-rust-svm
+
+build-libsvm-dll-a:
+	cd $(BIN_DIR) \
+		&& gendef svm.dll \
+		&& x86_64-w64-mingw32-dlltool -d svm.def -D svm.dll -l libsvm.dll.a
+.PHONY: build-libsvm-dll-a
 
 test-tidy:
 	# Working directory must be clean, or this test would be destructive
@@ -62,4 +67,3 @@ lint:
 	go vet ./...
 .PHONY: lint
 
-ci-test: build-rust-svm install build test-all
