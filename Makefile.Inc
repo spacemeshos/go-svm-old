@@ -41,7 +41,7 @@ ifneq ($(VERBOSE),)
 endif
 
 ifeq ($(platform), windows)
-  SVM_LIBS = svm.dll libsvm.a
+  SVM_LIBS = svm.dll libsvm.dll.a
 else
   ifeq ($(platform), macos)
   	SVM_LIBS = libsvm.dylib
