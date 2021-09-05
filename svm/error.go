@@ -3,7 +3,7 @@ package svm
 import "C"
 import "errors"
 
-// Error is an svm error wrapper
+// Error is an SVM error wrapper
 type Error struct {
 	ByteArray
 }

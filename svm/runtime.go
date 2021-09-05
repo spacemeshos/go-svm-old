@@ -1,9 +1,6 @@
 package svm
 
-/*
-#include "svm.h"
-#include "memory.h"
-*/
+// #include "svm.h"
 import "C"
 import "unsafe"
 

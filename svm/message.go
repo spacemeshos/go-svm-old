@@ -1,8 +1,6 @@
 package svm
 
-/*
-#include "svm.h"
-*/
+// #include "svm.h"
 import "C"
 
 // Message is an SVM message wrapper
@@ -10,16 +8,16 @@ type Message struct {
 	ByteArray
 }
 
-// NewMessage creates new message with specified data length
+// NewMessage allocated a new `Message` of 
 func NewMessage(length int) *Message {
-	m := &Message{}
-	m.byteArray = C.svm_message_alloc(C.uint(length))
-	return m
+	msg := &Message{}
+	msg.byteArray = C.svm_message_alloc(C.uint(length))
+	return msg
 }
 
 // NewMessageFromBytes creates new SVM message from specified bytes
-func NewMessageFromBytes(bs []byte) *Message {
-	m := NewMessage(len(bs))
-	m.FromBytes(bs)
-	return m
+func NewMessageFromBytes(bytes []byte) *Message {
+	msg := NewMessage(len(bytes))
+	msg.FromBytes(bytes)
+	return msg
 }
