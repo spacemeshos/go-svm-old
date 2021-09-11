@@ -4,7 +4,8 @@ Go bindings for [SVM](https://github.com/spacemeshos/svm)
 
 ## High-level API
 
-This documentation is still WIP - the final API is not finalized yet.
+**This documentation is still WIP - the final API is not finalized yet.**
+
 For now, the documentation will only contain pseudo-code level API.
 
 Each binary (over-the-wire) transaction will always have two parts:
@@ -76,7 +77,7 @@ Right now it'll be using the `SVM SDK`, but in the future there might be more wa
 ```
 
 After a successful deploy of a `Template` an additional Section called `Deploy Section` will be appended to the input `Deploy Message`.
-Then, the whole `Template` will be stored inside the `Global-State` managed by `SVM` as well.
+Then, the whole `Template` will be stored inside the `Global State` managed by `SVM` as well.
 
 ### Spawn Message
 
@@ -106,7 +107,7 @@ Syntactically validates the `Deploy Message` given in a binary form and returns 
 If it's not valid, a `ValidateError` will be returned as well.
 
 ```go
-func ValidateDeploy(msg []byte) (bool, ValidateError)
+func ValidateDeploy(rt Runtime, msg []byte) (bool, ValidateError)
 ```
 
 ### Deploy
@@ -114,7 +115,7 @@ func ValidateDeploy(msg []byte) (bool, ValidateError)
 Performs the actual deployment of a Template. Returns a `DeployReceipt` in return.
 
 ```go
-func Deploy(env Envelope, msg []byte, ctx Context) DeployReceipt
+func Deploy(rt Runtime, env Envelope, msg []byte, ctx Context) DeployReceipt
 ```
 
 A `DeployReceipt` will consist of:
@@ -138,7 +139,7 @@ Syntactically validates the `Spawn Message` given in a binary form and returns w
 If it's not valid, a `ValidateError` will be returned as well.
 
 ```go
-func ValidateSpawn(msg []byte) (bool, ValidateError)
+func ValidateSpawn(rt Runtime, msg []byte) (bool, ValidateError)
 ```
 
 #### Spawn
@@ -150,7 +151,7 @@ A `SpawnReceipt` will consist of:
 - `success` - Whether the transaction has succeeded or not.
 - `error` - Will return `SvmError` (see later for more details) in case the transaction has failed.
 - `addr` - The generated `Account Address` for the newly spawned `Account` (when spawning succeeded).
-- `init_state` - The `Global-State` updated `Root Hash` after the transaction has finished (when spawning succeeded).
+- `init_state` - The `Global State` updated `Root Hash` after the transaction has finished (when spawning succeeded).
 - `returndata` - The encoded Blob of returned data by the constructor running as part of the transaction.
 - `gas_used` - The amount of `Gas` units used for executing the transaction.
 - `logs` - Collected logs during execution of the constructor function.
@@ -168,7 +169,7 @@ Syntactically validates the `Call Message` given in a binary form and returns wh
 If it's not valid, a `ValidateError` will be returned as well.
 
 ```go
-func ValidateCall(msg []byte) (bool, ValidateError)
+func ValidateCall(rt Runtime, msg []byte) (bool, ValidateError)
 ```
 
 #### Call
@@ -179,35 +180,83 @@ A `CallReceipt` will consist of:
 
 - `success` - Whether the transaction has succeeded or not.
 - `error` - Will return `SvmError` (see later for more details) in case the transaction has failed.
-- `new_state` - The `Global-State` updated `Root Hash` after the transaction has finished (when call succeeded).
+- `new_state` - The `Global State` updated `Root Hash` after the transaction has finished (when call succeeded).
 - `returndata` - The encoded Blob of returned data by the called function.
 - `gas_used` - The amount of `Gas` units used for executing the transaction.
 - `logs` - Collected logs during execution of the constructor function.
 
-### Get Account's Balance
+### Verify
 
-TBD
+Performs the `verify` stage as dictated by the [Account Unification](https://github.com/spacemeshos/SMIPS/issues/49) design.
+Since the `verify` flow involves the running Wasm function as done when running a `Call` transaction, the output will be of type `CallReceipt` as well.
 
-### Get Account's Counter
+```go
+func Verify(rt Runtime, env Envelope, msg []byte, ctx Context) CallReceipt
+```
 
-TBD
+### Get Account
+
+Retrieving the most basic information of an `Account`
+
+The fields returned:
+
+- `balance` - The balance of the `Account`
+- `counter` - The counter of the `Account` (used for implementing the `Nonce Scheme`).
+- `template_addr` - The `Template Address` associated with the `Account`.
+
+```go
+func GetAccount(rt Runtime, addr Address) Account
+```
+
+Returns `nil` if no such `Account` exist.
 
 ### Increase An Account's Balance
 
-TBD
+Increases the balance of an `Account` (i.e printing coins)
+
+```go
+func IncreaseAccount(rt Runtime, addr Address, amount Amount)
+```
+
+**TODO** - determine what to do in case there is no `Account` associated with the given `Address`.
 
 ### Rewind
 
-TBD
+Rewinds the `Global State` to an historical layer.
+
+```go
+func Rewind(rt Runtime, layer Layer)
+```
+
+If the given `layer` is in the future - then it's an undefined behavior.
 
 ### Commit
 
-TBD
+Commits the currently dirty-changes into the `Global State` and returns its new computed `Root State Hash`.
+
+```go
+func Commit(rt Runtime) State
+```
+
+If the persistence operation failed - then it's an undefined behavior.
+
+### SvmError
+
+```go
+struct SvmError {
+    Parse ParseError
+    Program ProgramError,
+    FixedGas FixedGasError,
+}
+
+// TBD
+struct ParseError { }
+
+// TBD
+struct ProgramError { }
+
+```
 
 ### Nonces Schemes API
 
-TBD
-
-```
-
-```
+TBD. The changes required by the [Nonces Schemes SMIP](https://github.com/spacemeshos/SMIPS/issues/59) have not been finalized yet.
