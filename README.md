@@ -98,7 +98,7 @@ Each `Call Message` contain the following fields:
 
 ### Deploying a Template
 
-Deploying a Template exposes two dedicated APIs: `ValidateDeploy` and `Deploy`:
+Deploying a Template exposes two dedicated APIs: `ValidateDeploy` and `Deploy`.
 
 #### Validate Deploy
 
@@ -130,7 +130,7 @@ A `DeployReceipt` will consist of:
 ### Spawn
 
 Performs the spawning of a new `Account` out of existing `Template`.
-Similarly to `Deploy` - Spawning a new `Account` exposes two dedicated APIs: `ValidateSpawn` and `Spawn`:
+Similarly to `Deploy` - spawning a new `Account` exposes two dedicated APIs: `ValidateSpawn` and `Spawn`.
 
 #### Validate Spawn
 
@@ -138,10 +138,10 @@ Syntactically validates the `Spawn Message` given in a binary form and returns w
 If it's not valid, a `ValidateError` will be returned as well.
 
 ```go
-func ValidateSpawn(msg []byte) (bool, ValidateError) {
+func ValidateSpawn(msg []byte) (bool, ValidateError)
 ```
 
-### Spawn
+#### Spawn
 
 Performs the actual spawning of an `Account`. Returns a `SpawnReceipt` in return.
 
@@ -159,18 +159,50 @@ A `SpawnReceipt` will consist of:
 
 ### Call
 
-Performs the calling an existing `Account`.
-Similarly to `Call` - Calling an `Account` exposes two dedicated APIs: `ValidateCall` and `Call`:
+Performs calling an existing `Account`.
+Similarly to `Deploy` and `Spawn` - calling an `Account` exposes two dedicated APIs: `ValidateCall` and `Call`:
+
+#### Validate Call
+
+Syntactically validates the `Call Message` given in a binary form and returns whether it's valid or not.
+If it's not valid, a `ValidateError` will be returned as well.
+
+```go
+func ValidateCall(msg []byte) (bool, ValidateError)
+```
+
+#### Call
+
+Performs the actual calling an `Account`. Returns a `CallReceipt` in return.
+
+A `CallReceipt` will consist of:
+
+- `success` - Whether the transaction has succeeded or not.
+- `error` - Will return `SvmError` (see later for more details) in case the transaction has failed.
+- `new_state` - The `Global-State` updated `Root Hash` after the transaction has finished (when call succeeded).
+- `returndata` - The encoded Blob of returned data by the called function.
+- `gas_used` - The amount of `Gas` units used for executing the transaction.
+- `logs` - Collected logs during execution of the constructor function.
 
 ### Get Account's Balance
 
+TBD
+
 ### Get Account's Counter
+
+TBD
 
 ### Increase An Account's Balance
 
+TBD
+
 ### Rewind
 
+TBD
+
 ### Commit
+
+TBD
 
 ### Nonces Schemes API
 
