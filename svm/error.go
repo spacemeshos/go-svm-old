@@ -1,18 +1,35 @@
 package svm
 
-import "C"
-import "errors"
+type ValidateErrorKind byte
+type RuntimeErrorKind byte
 
-// Error is an svm error wrapper
-type Error struct {
-	ByteArray
+const (
+	ParseError    ValidateErrorKind = 0
+	ProgramError  ValidateErrorKind = 1
+	FixedGasError ValidateErrorKind = 2
+)
+
+const (
+	OOG                  RuntimeErrorKind = 0
+	TemplateNotFound     RuntimeErrorKind = 1
+	AccountNotFound      RuntimeErrorKind = 2
+	CompilationFailed    RuntimeErrorKind = 3
+	InstantiationFailed  RuntimeErrorKind = 4
+	FuncNotFound         RuntimeErrorKind = 5
+	FuncFailed           RuntimeErrorKind = 6
+	FuncNotAllowed       RuntimeErrorKind = 7
+	FuncInvalidSignature RuntimeErrorKind = 8
+)
+
+type ValidateError struct {
+	kind    ValidateErrorKind
+	message string
 }
 
-// ToError converts SVM error into Golang error
-func (e Error) ToError(prefix string) error {
-	return errors.New(prefix + string(e.Bytes()))
-}
-
-func (e *Error) ptr() *byteArray {
-	return &e.byteArray
+type RuntimeError struct {
+	kind     RuntimeErrorKind
+	target   Address
+	function string
+	template TemplateAddr
+	message  string
 }
