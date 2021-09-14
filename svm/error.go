@@ -22,14 +22,14 @@ const (
 )
 
 type ValidateError struct {
-	kind    ValidateErrorKind
-	message string
+	Kind    ValidateErrorKind
+	Message string
 }
 
 type RuntimeError struct {
-	kind     RuntimeErrorKind
-	target   Address
-	function string
-	template TemplateAddr
-	message  string
+	Kind     RuntimeErrorKind
+	Target   Address
+	Function string
+	Template TemplateAddr
+	Message  string
 }

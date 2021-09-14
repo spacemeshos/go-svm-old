@@ -1,13 +1,13 @@
 package svm
 
-func decodeDeployReceipt([]byte) DeployReceipt {
+func decodeDeployReceipt(bytes []byte) DeployReceipt {
 	panic("TODO")
 }
 
-func decodeSpawnReceipt([]byte) SpawnReceipt {
+func decodeSpawnReceipt(bytes []byte) SpawnReceipt {
 	panic("TODO")
 }
 
-func decodeCallReceipt([]byte) CallReceipt {
+func decodeCallReceipt(bytes []byte) CallReceipt {
 	panic("TODO")
 }

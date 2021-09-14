@@ -18,13 +18,13 @@ type Runtime struct {
 }
 
 type Context struct {
-	layer Layer
-	txId  TxId
+	Layer Layer
+	TxId  TxId
 }
 
 type AccountCounter struct {
-	upper uint64
-	lower uint64
+	Upper uint64
+	Lower uint64
 }
 
 const (
