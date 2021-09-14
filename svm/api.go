@@ -29,27 +29,35 @@ func (rt *Runtime) Close() error {
 	panic("TODO")
 }
 
-func ValidateDeploy(rt *Runtime, msg []byte) (bool, ValidateError) {
+func (rt *Runtime) ValidateDeploy(msg []byte) (bool, ValidateError) {
 	panic("TODO")
 }
 
-func Deploy(rt *Runtime, env Envelope, msg []byte, ctx Context) DeployReceipt {
+func (rt *Runtime) Deploy(env Envelope, msg []byte, ctx Context) DeployReceipt {
 	panic("TODO")
 }
 
-func ValidateSpawn(rt *Runtime, msg []byte) (bool, ValidateError) {
+func (rt *Runtime) ValidateSpawn(msg []byte) (bool, ValidateError) {
 	panic("TODO")
 }
 
-func Spawn(rt *Runtime, env Envelope, msg []byte, ctx Context) SpawnReceipt {
+func (rt *Runtime) Spawn(env Envelope, msg []byte, ctx Context) SpawnReceipt {
 	panic("TODO")
 }
 
-func ValidateCall(rt *Runtime, msg []byte) (bool, ValidateError) {
+func (rt *Runtime) ValidateCall(msg []byte) (bool, ValidateError) {
 	panic("TODO")
 }
 
-func Call(rt *Runtime, env Envelope, msg []byte, ctx Context) CallReceipt {
+func (rt *Runtime) Call(env Envelope, msg []byte, ctx Context) CallReceipt {
+	panic("TODO")
+}
+
+func (rt *Runtime) Verify(env Envelope, msg []byte, ctx Context) CallReceipt {
+	panic("TODO")
+}
+
+func (rt *Runtime) Open(layer Layer) {
 	panic("TODO")
 }
 
@@ -57,7 +65,7 @@ func (rt *Runtime) Rewind(layer Layer) {
 	panic("TODO")
 }
 
-func (rt *Runtime) Commit() {
+func (rt *Runtime) Commit() Layer {
 	panic("TODO")
 }
 
