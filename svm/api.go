@@ -39,7 +39,7 @@ func AssertInitialized() {
 	}
 }
 
-// Creates a new `Runtime`.
+// NewRuntime creates a new `Runtime`.
 //
 // On success returns it and the `error` is set to `nil`.
 // On failure returns `(nil, error).
